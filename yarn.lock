@@ -46,6 +46,16 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.42.0.tgz#484a1d638de2911e6f5a30c12f49c7e4a3270fb6"
   integrity sha512-6SWlXpWU5AvId8Ac7zjzmIOqMOba/JWY8XZ4A7q7Gn1Vlfg/SFFIlrtHXt9nPn4op9ZPAkl91Jao+QQv3r/ukw==
 
+"@fontsource/jura@^5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@fontsource/jura/-/jura-5.0.3.tgz#5ab658d6d8980d7c6c17e76134e64f4959a5e614"
+  integrity sha512-8XKT9dh80zEoGTm0/JU0tp3Z7BFBcuGG7eg1+J6TApgqC8RtLscFicUkO6dqXkXFWwZcvxRai8DouoTLUa30kw==
+
+"@fontsource/manrope@^5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@fontsource/manrope/-/manrope-5.0.3.tgz#4b0a7b53595253b148196be6537e0ffef8f8d8d9"
+  integrity sha512-MlRhrzpIEcgAB0MFdlQ/LVD5C4XB53Pq13Wxxb3inyEAPG+gSBoHW1NKGOWwOQs22FLlengtbOkmL5br2/YASw==
+
 "@humanwhocodes/config-array@^0.11.10":
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.10.tgz#5a3ffe32cc9306365fb3fd572596cd602d5e12d2"
@@ -2009,6 +2019,11 @@ react-dom@18.2.0:
   dependencies:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
+
+react-icons@^4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.9.0.tgz#ba44f436a053393adb1bdcafbc5c158b7b70d2a3"
+  integrity sha512-ijUnFr//ycebOqujtqtV9PFS7JjhWg0QU6ykURVHuL4cbofvRCf3f6GMn9+fBktEFQOIVZnuAYLZdiyadRQRFg==
 
 react-is@^16.13.1:
   version "16.13.1"
