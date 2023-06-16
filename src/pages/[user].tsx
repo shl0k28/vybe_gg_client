@@ -10,8 +10,10 @@ const WalletInfo: NextPage = () => {
     const router = useRouter()
     const { user } = router.query
     
+    // local state
     const [portfolioData, setPortfolioData] = useState<Array<number>>([])
     const [nftBalances, setNftBalances] = useState<any>()
+    const [tokenBalances, setTokenBalances] = useState<any>()
 
     // get portfolio data
     const getHistoricalPortfolio = async (chainName: string, address: string) => {
@@ -33,12 +35,26 @@ const WalletInfo: NextPage = () => {
         return data
     }
 
+    // get token balances
+    const getTokenBalances = async (chainName: string, address: string) => {
+        let url = `http://localhost:8080/api/fetch/tokenBalance?chainName=${chainName}&address=${address}`
+        const res = await fetch(url, { method: 'GET' })
+        const data = await res.json()
+        setTokenBalances(data)
+        console.log(data)
+        return data
+    }
+
     const historicalPortfolioQuery = useQuery({ queryKey: ['history'], 
         queryFn: () => getHistoricalPortfolio('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')
     })
 
     const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
         queryFn: () => getNftBalances('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0') 
+    })
+
+    const tokenBalanceQuery = useQuery({ queryKey: ['tokenBalances'],
+        queryFn: () => getTokenBalances('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')    
     })
 
     const header = `vybe.gg`
@@ -66,13 +82,17 @@ const WalletInfo: NextPage = () => {
             <section>
                 {
                     nftBalancesQuery.data && <div>
-                        
+
                     </div>
+                }
+            </section>
+            <section>
+                {
+                    tokenBalanceQuery.data && <div></div>
                 }
             </section>
         </div>
     )
-
 }
 
 export default WalletInfo
