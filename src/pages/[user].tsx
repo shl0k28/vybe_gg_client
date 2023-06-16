@@ -176,7 +176,7 @@ const WalletInfo: NextPage = () => {
                                         {
                                             nftBalances && nftBalances.data.items.map((nft: any, index: number) => {
                                                 return (
-                                                    <Tr>
+                                                    <Tr key={index}>
                                                         <Td>{nft.contract_name}</Td>
                                                         <Td>{nft.contract_address.slice(0,5)}...{nft.contract_address.slice(-5)}</Td>
                                                         <Td>{nft.balance}</Td>
@@ -192,36 +192,46 @@ const WalletInfo: NextPage = () => {
                     }
                 </HStack>
             </Stack>
-            <Stack>
-                <HStack>
-                    {/* Transaction History Goes Here */}
-                    
-                </HStack>
+            <Stack px={16} fontFamily={'Manrope'} py={16}>
                 <HStack>
                     {/* Historical Portfolio Value Goes Here */}
+                    {
+                        userTransactions && <div>
+                            <TableContainer>
+                                <Table>
+                                    <TableCaption>Transaction History</TableCaption>
+                                    <Thead>
+                                        <Tr>
+                                            <Th>From</Th>
+                                            <Th>To</Th>
+                                            <Th>Hash</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                        {
+                                            userTransactions && userTransactions.data.items.map((tx: any, index: number) => {
+                                                return(
+                                                    <Tr key={index}>
+                                                        <Td>{tx.from_address.slice(0,5)}...{tx.from_address.slice(-5)}</Td>
+                                                        <Td>{tx.to_address.slice(0,5)}...{tx.to_address.slice(-5)}</Td>
+                                                        <Td>{tx.tx_hash.slice(0,5)}...{tx.tx_hash.slice(-5)}</Td>
+                                                    </Tr>
+                                                )
+                                            })
+                                        }
+                                    </Tbody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    }
+                    {/* Transaction History Goes Here */}
+                    {
+                        historicalPortfolioQuery.data && <div className='w-2/5'>
+                            <Line data={data} options={options}/>
+                        </div>
+                    }
                 </HStack>
             </Stack>
-            <section className='px-8 py-4 flex items-center'>
-                {
-                    historicalPortfolioQuery.data && <div className='w-2/5'>
-                        <Line data={data} options={options}/>
-                    </div>
-                }
-            </section>
-            <section>
-                {
-                    nftBalancesQuery.data && <div>
-
-                    </div>
-                }
-            </section>
-            <section>
-                {
-                    userTransactionsQuery.data && <div>
-                        
-                    </div>
-                }
-            </section>
         </Box>
     )
 }
