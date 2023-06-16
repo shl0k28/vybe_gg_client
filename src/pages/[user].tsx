@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
-import { Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react'
+import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react'
 
 const WalletInfo: NextPage = () => {
     
@@ -139,11 +139,17 @@ const WalletInfo: NextPage = () => {
     
 
     return(
-        <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'}>
-            <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center space-x-8'>
+        <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
+            <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center justify-between space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
+                <Button bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
+                    bgColor: 'pink.600',
+                    color: 'whiteAlpha.800'
+                }}>
+                    get degen score
+                </Button>
             </nav>
-            <Stack px={16}>
+            <Stack px={16} fontFamily={'Manrope'}>
                 <Text>{user}</Text>
                 <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                     {/* Display Total Networth Here */}
@@ -155,15 +161,15 @@ const WalletInfo: NextPage = () => {
                     {
                         nftBalances && 
                         <Stack w={'container.sm'}>
-                            <TableContainer>
-                                <Table variant={'simple'} border={'#A9A9A9'} color={'#F8F8FF'}>
+                            <TableContainer overflow={'hidden'}>
+                                <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
                                     <TableCaption>NFT Index</TableCaption>
                                     <Thead>
                                         <Tr>
-                                            <Th>Name</Th>
-                                            <Th>Contract</Th>
-                                            <Th>Balance</Th>
-                                            <Th>Last Activity</Th>
+                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Name</Th>
+                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Contract</Th>
+                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Balance</Th>
+                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Last Activity</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -184,9 +190,6 @@ const WalletInfo: NextPage = () => {
                             </TableContainer>
                         </Stack>
                     }
-                </HStack>
-                <HStack>
-                    {/* NFT Window Goes Here */}
                 </HStack>
             </Stack>
             <Stack>
