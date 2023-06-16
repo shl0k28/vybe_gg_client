@@ -2,7 +2,7 @@ import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
-import { Bar, Chart } from 'react-chartjs-2'
+import { Line } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
 
 const WalletInfo: NextPage = () => {
@@ -68,17 +68,8 @@ const WalletInfo: NextPage = () => {
           {
             label: 'Dataset',
             data: [10000, 10234, 10500],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255, 99, 132, 1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-            ],
-            borderWidth: 1,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgba(75, 192, 192, 0.2)',
           },
         ],
     };
@@ -105,7 +96,7 @@ const WalletInfo: NextPage = () => {
             <section>
                 {
                     historicalPortfolioQuery.data && <div>
-                        <Bar data={data} options={options}/>
+                        <Line data={data} options={options}/>
                     </div>
                 }
             </section>
