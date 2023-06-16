@@ -1,11 +1,14 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { Bar, Chart } from 'react-chartjs-2'
+import { Chart as ChartJs, registerables } from 'chart.js'
 
 const WalletInfo: NextPage = () => {
     
+    ChartJs.register(...registerables)
+
     const queryClient = useQueryClient()
     const router = useRouter()
     const { user } = router.query
@@ -59,6 +62,35 @@ const WalletInfo: NextPage = () => {
 
     const header = `vybe.gg`
 
+    const data = {
+        labels: ['Item 1', 'Item 2', 'Item 3'],
+        datasets: [
+          {
+            label: 'Dataset',
+            data: [10000, 10234, 10500],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+            ],
+            borderWidth: 1,
+          },
+        ],
+    };
+
+    const options = {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+    };
+
     return(
         <div className='bg-[#14161f] h-screen w-screen'>
             <nav className='bg-[#08090c] text-white px-8 py-4 flex items-center space-x-8'>
@@ -73,9 +105,7 @@ const WalletInfo: NextPage = () => {
             <section>
                 {
                     historicalPortfolioQuery.data && <div>
-                        <LineChart width={600} height={300} data={portfolioData}>
-                            <Line type="monotone" dataKey="networth" stroke="#8884d8" />
-                        </LineChart>
+                        <Bar data={data} options={options}/>
                     </div>
                 }
             </section>
