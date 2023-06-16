@@ -2,7 +2,7 @@ import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
-import { Line } from 'react-chartjs-2'
+import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
 
 const WalletInfo: NextPage = () => {
@@ -61,17 +61,28 @@ const WalletInfo: NextPage = () => {
     })
 
     const header = `vybe.gg`
+    
+    function getLast30Days() {
+        const dates = Array.from({length: 30}, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        });
+    
+        return dates.reverse()
+    }
 
     const data = {
-        labels: ['Item 1', 'Item 2', 'Item 3'],
+        labels: getLast30Days(),
         datasets: [
           {
-            label: 'Dataset',
-            data: [10000, 10234, 10500],
-            backgroundColor: 'rgb(75, 192, 192)',
-            borderColor: 'rgba(75, 192, 192, 0.2)',
+            label: 'Total Networth($USD)',
+            data: portfolioData,
+            backgroundColor: 'rgb(135, 206, 235, 1)',
+            borderColor: 'rgba(135, 206, 235, 0.2)',
           },
         ],
+        fill: true
     };
 
     const options = {
@@ -82,18 +93,30 @@ const WalletInfo: NextPage = () => {
         },
     };
 
+    const chartData = {
+        labels: ['USD', "ETH"],
+        datasets: [{
+          label: 'Token Balances',
+          data: tokenBalances.percentagesArray,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            // Add more colors if you have more cryptocurrencies.
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            // Add more colors if you have more cryptocurrencies.
+          ],
+          borderWidth: 1,
+        }],
+    };
     return(
-        <div className='bg-[#14161f] h-screen w-screen'>
+        <div className='bg-[#14161f] h-screen w-screen overflow-hidden'>
             <nav className='bg-[#08090c] text-white px-8 py-4 flex items-center space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
             </nav>
-            <section>
-                <div>
-                    <p>{user}</p>
-                </div>
-                {/* <button onClick={() => getPortfolio('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')}>Get Portfolio</button> */}
-            </section>
-            <section>
+            <section className='w-2/5 px-8 py-4'>
                 {
                     historicalPortfolioQuery.data && <div>
                         <Line data={data} options={options}/>
@@ -107,9 +130,11 @@ const WalletInfo: NextPage = () => {
                     </div>
                 }
             </section>
-            <section>
+            <section className='w-1/3 h-10'>
                 {
-                    tokenBalanceQuery.data && <div></div>
+                    tokenBalanceQuery.data && <div>
+                        <Pie data={chartData}/>
+                    </div>
                 }
             </section>
         </div>
