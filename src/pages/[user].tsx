@@ -122,8 +122,13 @@ const WalletInfo: NextPage = () => {
         },
     };
     
+    let chartLabels = []
+    for(let i = 0; i < tokenBalances?.actualTokens.length; i++) {
+        chartLabels.push(tokenBalances?.actualTokens[i].contract_ticker_symbol)
+    }
+
     const chartData = {
-        labels: ['USD', "ETH"],
+        labels: chartLabels,
         datasets: [{
           label: 'Token Balances(%)',
           data: tokenBalances?.percentagesArray,
@@ -155,6 +160,7 @@ const WalletInfo: NextPage = () => {
                     {/* Display Total Networth Here */}
                     {
                         tokenBalances && <Stack h={'80%'} w={'33%'}>
+                            <Heading>Net Worth: ${portfolioData[0].toFixed(2)}</Heading>
                             <Pie data={chartData}/>
                         </Stack>
                     }
