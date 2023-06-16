@@ -24,7 +24,7 @@ const WalletInfo: NextPage = () => {
     }
 
     // get nft balances
-    const getTokenBalances = async (chainName: string, address: string) => {
+    const getNftBalances = async (chainName: string, address: string) => {
         let url = `http://localhost:8080/api/fetch/nftBalance?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
@@ -33,8 +33,12 @@ const WalletInfo: NextPage = () => {
         return data
     }
 
-    const { data, isError, isFetched, isLoading } = useQuery({ queryKey: ['history'], 
+    const historicalPortfolioQuery = useQuery({ queryKey: ['history'], 
         queryFn: () => getHistoricalPortfolio('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')
+    })
+
+    const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
+        queryFn: () => getNftBalances('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0') 
     })
 
     const header = `vybe.gg`
@@ -52,10 +56,17 @@ const WalletInfo: NextPage = () => {
             </section>
             <section>
                 {
-                    data && <div>
+                    historicalPortfolioQuery.data && <div>
                         <LineChart width={600} height={300} data={portfolioData}>
                             <Line type="monotone" dataKey="networth" stroke="#8884d8" />
                         </LineChart>
+                    </div>
+                }
+            </section>
+            <section>
+                {
+                    nftBalancesQuery.data && <div>
+                        
                     </div>
                 }
             </section>
