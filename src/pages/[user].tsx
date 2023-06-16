@@ -160,8 +160,12 @@ const WalletInfo: NextPage = () => {
                     </div>
                 }
             </section>
-            <section className='w-1/3 h-10'>
-                
+            <section>
+                {
+                    userTransactionsQuery.data && <div>
+                        
+                    </div>
+                }
             </section>
         </div>
     )
