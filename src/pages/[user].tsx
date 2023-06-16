@@ -73,7 +73,7 @@ const WalletInfo: NextPage = () => {
     const userTransactionsQuery = useQuery({ queryKey: ['userTransactions'],
         queryFn: () => getUserTransactions('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')
     })
-    
+
     const header = `vybe.gg`
     
     const backgroundColor = [
@@ -119,14 +119,12 @@ const WalletInfo: NextPage = () => {
           },
         },
     };
-
-    /*
     
     const chartData = {
         labels: ['USD', "ETH"],
         datasets: [{
           label: 'Token Balances(%)',
-          data: tokenBalances.percentagesArray,
+          data: tokenBalances?.percentagesArray,
           backgroundColor: backgroundColor,
           borderColor: [
             'rgba(255, 99, 132, 1)',
@@ -136,7 +134,7 @@ const WalletInfo: NextPage = () => {
           borderWidth: 1,
         }],
     };
-    */
+    
 
     return(
         <div className='bg-[#14161f] h-screen w-screen overflow-hidden'>
@@ -150,8 +148,8 @@ const WalletInfo: NextPage = () => {
                     </div>
                 }
                 {
-                    tokenBalanceQuery.data && <div className='w-1/4'>
-                        {/* <Pie data={chartData}/> */}
+                    tokenBalances && <div className='w-1/4'>
+                        <Pie data={chartData}/>
                     </div>
                 }
             </section>
