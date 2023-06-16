@@ -159,14 +159,15 @@ const WalletInfo: NextPage = () => {
                 <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                     {/* Display Total Networth Here */}
                     {
-                        tokenBalances && <Stack h={'80%'} w={'33%'}>
-                            <Heading>Net Worth: ${portfolioData[0].toFixed(2)}</Heading>
+                        tokenBalances && portfolioData && <VStack h={'80%'} w={'33%'}>
+                            {/* <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>Net Worth: ${portfolioData[0].toFixed(2)}</Heading> */}
                             <Pie data={chartData}/>
-                        </Stack>
+                        </VStack>
                     }
                     {
                         nftBalances && 
-                        <Stack w={'container.sm'}>
+                        <Stack w={'container.sm'} spacing={8}>
+                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>Pixel Treasury</Heading>
                             <TableContainer overflow={'hidden'}>
                                 <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
                                     <TableCaption>NFT Index</TableCaption>
@@ -202,9 +203,10 @@ const WalletInfo: NextPage = () => {
                 <HStack alignItems={'start'} justify={'space-between'}>
                     {/* Historical Portfolio Value Goes Here */}
                     {
-                        userTransactions && <div>
+                        userTransactions && <Stack>
+                            <Heading>Satoshi's Scroll</Heading>
                             <TableContainer>
-                                <Table variant={'striped'}>
+                                <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
                                     <TableCaption>Transaction History</TableCaption>
                                     <Thead>
                                         <Tr>
@@ -228,11 +230,11 @@ const WalletInfo: NextPage = () => {
                                     </Tbody>
                                 </Table>
                             </TableContainer>
-                        </div>
+                        </Stack>
                     }
                     {/* Transaction History Goes Here */}
                     {
-                        historicalPortfolioQuery.data && <Stack w={'full'}>
+                        historicalPortfolioQuery.data && <Stack w={'container.sm'}>
                             <Line data={data} options={options}/>
                         </Stack>
                     }
