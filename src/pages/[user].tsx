@@ -96,7 +96,7 @@ const WalletInfo: NextPage = () => {
     const chartData = {
         labels: ['USD', "ETH"],
         datasets: [{
-          label: 'Token Balances',
+          label: 'Token Balances(%)',
           data: tokenBalances.percentagesArray,
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
@@ -111,15 +111,21 @@ const WalletInfo: NextPage = () => {
           borderWidth: 1,
         }],
     };
+
     return(
         <div className='bg-[#14161f] h-screen w-screen overflow-hidden'>
             <nav className='bg-[#08090c] text-white px-8 py-4 flex items-center space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
             </nav>
-            <section className='w-2/5 px-8 py-4'>
+            <section className='px-8 py-4 flex items-center'>
                 {
-                    historicalPortfolioQuery.data && <div>
+                    historicalPortfolioQuery.data && <div className='w-2/5'>
                         <Line data={data} options={options}/>
+                    </div>
+                }
+                {
+                    tokenBalanceQuery.data && <div className='w-1/4'>
+                        <Pie data={chartData}/>
                     </div>
                 }
             </section>
@@ -131,11 +137,7 @@ const WalletInfo: NextPage = () => {
                 }
             </section>
             <section className='w-1/3 h-10'>
-                {
-                    tokenBalanceQuery.data && <div>
-                        <Pie data={chartData}/>
-                    </div>
-                }
+                
             </section>
         </div>
     )
