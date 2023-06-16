@@ -166,7 +166,7 @@ const WalletInfo: NextPage = () => {
                     }
                     {
                         nftBalances && 
-                        <Stack w={'container.sm'} spacing={8}>
+                        <Stack spacing={8}>
                             <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>Pixel Treasury</Heading>
                             <TableContainer overflow={'hidden'}>
                                 <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
@@ -199,9 +199,17 @@ const WalletInfo: NextPage = () => {
                     }
                 </HStack>
             </Stack>
-            <Stack px={16} fontFamily={'Manrope'} py={16}>
-                <HStack alignItems={'start'} justify={'space-between'}>
-                    {/* Historical Portfolio Value Goes Here */}
+            <Stack px={16} py={16}>
+                    {/* Transaction History Goes Here */}
+                    {
+                        historicalPortfolioQuery.data && <div>
+                            <Line data={data} options={options}/>
+                        </div>
+                    }
+            </Stack>
+            
+            {/* <Stack px={16} fontFamily={'Manrope'} py={16}>
+                <VStack align={'start'}>
                     {
                         userTransactions && <Stack>
                             <Heading>Satoshi's Scroll</Heading>
@@ -232,14 +240,8 @@ const WalletInfo: NextPage = () => {
                             </TableContainer>
                         </Stack>
                     }
-                    {/* Transaction History Goes Here */}
-                    {
-                        historicalPortfolioQuery.data && <Stack w={'container.sm'}>
-                            <Line data={data} options={options}/>
-                        </Stack>
-                    }
-                </HStack>
-            </Stack>
+                </VStack>
+            </Stack> */}
         </Box>
     )
 }
