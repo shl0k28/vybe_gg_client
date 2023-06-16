@@ -156,7 +156,7 @@ const WalletInfo: NextPage = () => {
                         nftBalances && 
                         <Stack w={'container.sm'}>
                             <TableContainer>
-                                <Table variant={'simple'}>
+                                <Table variant={'simple'} border={'#A9A9A9'} color={'#F8F8FF'}>
                                     <TableCaption>NFT Index</TableCaption>
                                     <Thead>
                                         <Tr>
@@ -174,7 +174,7 @@ const WalletInfo: NextPage = () => {
                                                         <Td>{nft.contract_name}</Td>
                                                         <Td>{nft.contract_address.slice(0,5)}...{nft.contract_address.slice(-5)}</Td>
                                                         <Td>{nft.balance}</Td>
-                                                        <Td>{nft.last_transfered_at}</Td>
+                                                        <Td>{new Date(nft.last_transfered_at).toLocaleDateString()}</Td>
                                                     </Tr>
                                                 )
                                             })
