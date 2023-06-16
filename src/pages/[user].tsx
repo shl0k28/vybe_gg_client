@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
-import { Box, HStack, VStack, Stack, Heading, Text } from '@chakra-ui/react'
+import { Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react'
 
 const WalletInfo: NextPage = () => {
     
@@ -50,6 +50,7 @@ const WalletInfo: NextPage = () => {
         return data
     }
 
+    // get user transaction history
     const getUserTransactions = async (chainName: string, address: string) => {
         let url = `http://localhost:8080/api/fetch/transactions?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
@@ -138,13 +139,51 @@ const WalletInfo: NextPage = () => {
     
 
     return(
-        <Box h={'100vh'} w={'100vw'} overflow={'hidden'} bgColor={'#08090c'}>
-            <nav className='bg-[#08090c] text-white px-8 py-8 flex items-center space-x-8'>
+        <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'}>
+            <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
             </nav>
-            <Stack>
-                <HStack>
+            <Stack px={16}>
+                <Text>{user}</Text>
+                <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                     {/* Display Total Networth Here */}
+                    {
+                        tokenBalances && <Stack h={'80%'} w={'33%'}>
+                            <Pie data={chartData}/>
+                        </Stack>
+                    }
+                    {
+                        nftBalances && 
+                        <Stack w={'container.sm'}>
+                            <TableContainer>
+                                <Table variant={'simple'}>
+                                    <TableCaption>NFT Index</TableCaption>
+                                    <Thead>
+                                        <Tr>
+                                            <Th>Name</Th>
+                                            <Th>Contract</Th>
+                                            <Th>Balance</Th>
+                                            <Th>Last Activity</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                        {
+                                            nftBalances && nftBalances.data.items.map((nft: any, index: number) => {
+                                                return (
+                                                    <Tr>
+                                                        <Td>{nft.contract_name}</Td>
+                                                        <Td>{nft.contract_address.slice(0,5)}...{nft.contract_address.slice(-5)}</Td>
+                                                        <Td>{nft.balance}</Td>
+                                                        <Td>{nft.last_transfered_at}</Td>
+                                                    </Tr>
+                                                )
+                                            })
+                                        }
+                                    </Tbody>
+                                </Table>
+                            </TableContainer>
+                        </Stack>
+                    }
                 </HStack>
                 <HStack>
                     {/* NFT Window Goes Here */}
@@ -153,6 +192,7 @@ const WalletInfo: NextPage = () => {
             <Stack>
                 <HStack>
                     {/* Transaction History Goes Here */}
+                    
                 </HStack>
                 <HStack>
                     {/* Historical Portfolio Value Goes Here */}
@@ -162,11 +202,6 @@ const WalletInfo: NextPage = () => {
                 {
                     historicalPortfolioQuery.data && <div className='w-2/5'>
                         <Line data={data} options={options}/>
-                    </div>
-                }
-                {
-                    tokenBalances && <div className='w-1/4'>
-                        <Pie data={chartData}/>
                     </div>
                 }
             </section>
