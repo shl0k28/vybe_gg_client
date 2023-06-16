@@ -199,12 +199,12 @@ const WalletInfo: NextPage = () => {
                 </HStack>
             </Stack>
             <Stack px={16} fontFamily={'Manrope'} py={16}>
-                <HStack>
+                <HStack alignItems={'start'} justify={'space-between'}>
                     {/* Historical Portfolio Value Goes Here */}
                     {
                         userTransactions && <div>
                             <TableContainer>
-                                <Table>
+                                <Table variant={'striped'}>
                                     <TableCaption>Transaction History</TableCaption>
                                     <Thead>
                                         <Tr>
@@ -232,9 +232,9 @@ const WalletInfo: NextPage = () => {
                     }
                     {/* Transaction History Goes Here */}
                     {
-                        historicalPortfolioQuery.data && <div className='w-2/5'>
+                        historicalPortfolioQuery.data && <Stack w={'full'}>
                             <Line data={data} options={options}/>
-                        </div>
+                        </Stack>
                     }
                 </HStack>
             </Stack>
