@@ -2,7 +2,7 @@ import { FC } from 'react'
 
 const Sidebar: FC = () => {
     return(
-        <div></div>
+        <div className='h-screen w-25% bg-gray-100'></div>
     )
 }
 

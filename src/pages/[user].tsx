@@ -1,14 +1,20 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 
 const WalletInfo: NextPage = () => {
     
     const router = useRouter()
     const { user } = router.query
     
-    const fetchUserInfo = async () => {
-        const res = await fetch('http://localhost:8080/fetch/portfolio')
+    const [portfolioData, setPortfolioData] = useState<Array<number>>([])
+
+    const getPortfolio = async (chainName: string, address: string) => {
+        let url = `http://localhost:8080/api/fetch/portfolio?chainName=${chainName}&address=${address}`
+        const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
+        setPortfolioData(data)
         console.log(data)
     }
 
@@ -23,6 +29,16 @@ const WalletInfo: NextPage = () => {
                 <div>
                     <p>{user}</p>
                 </div>
+                <button onClick={() => getPortfolio('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')}>Get Portfolio</button>
+            </section>
+            <section>
+                {
+                    portfolioData && <div>
+                        <LineChart width={600} height={300} data={portfolioData}>
+                            <Line type="monotone" dataKey="networth" stroke="#8884d8" />
+                        </LineChart>
+                    </div>
+                }
             </section>
         </div>
     )
