@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
+import { Box, HStack, VStack, Stack, Heading, Text } from '@chakra-ui/react'
 
 const WalletInfo: NextPage = () => {
     
@@ -137,10 +138,26 @@ const WalletInfo: NextPage = () => {
     
 
     return(
-        <div className='bg-[#14161f] h-screen w-screen overflow-hidden'>
-            <nav className='bg-[#08090c] text-white px-8 py-4 flex items-center space-x-8'>
+        <Box h={'100vh'} w={'100vw'} overflow={'hidden'} bgColor={'#08090c'}>
+            <nav className='bg-[#08090c] text-white px-8 py-8 flex items-center space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
             </nav>
+            <Stack>
+                <HStack>
+                    {/* Display Total Networth Here */}
+                </HStack>
+                <HStack>
+                    {/* NFT Window Goes Here */}
+                </HStack>
+            </Stack>
+            <Stack>
+                <HStack>
+                    {/* Transaction History Goes Here */}
+                </HStack>
+                <HStack>
+                    {/* Historical Portfolio Value Goes Here */}
+                </HStack>
+            </Stack>
             <section className='px-8 py-4 flex items-center'>
                 {
                     historicalPortfolioQuery.data && <div className='w-2/5'>
@@ -167,7 +184,7 @@ const WalletInfo: NextPage = () => {
                     </div>
                 }
             </section>
-        </div>
+        </Box>
     )
 }
 
