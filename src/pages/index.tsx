@@ -32,10 +32,16 @@ const Home: NextPage = () => {
 		<Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
 			<nav className='bg-[#08090c] text-gray-300 px-16 py-8 flex items-center justify-between space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
-                <Button bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
-                    bgColor: 'pink.600',
-                    color: 'whiteAlpha.800'
-                }}>
+                <Button
+					sx={{
+						bg: 'linear-gradient(90deg, #fa81bb, #fcf9a8, #febe48)',
+						color: 'black',
+						borderRadius: '25px',
+						_hover: {
+						  bg: 'linear-gradient(90deg, #fa81bb, #fcf9a8, #febe48)',
+						},
+					  }}
+				>
                     launch
                 </Button>
             </nav>
@@ -57,10 +63,10 @@ const Home: NextPage = () => {
 				</HStack> */}
 			</VStack>
 			<HStack px={16} justify={'space-evenly'}>
-				<Image src='/gaming_arcade.jpg' h={'sm'} />
-				<Image src='/gaming_2.jpg' h={'sm'} />
-				<Image src='/gaming_3.jpg' h={'sm'} />
-				<Image src='/gaming_4.jpg' h={'sm'} />
+				<Image src='/gaming_arcade.jpg' h={'sm'} rounded={'lg'}/>
+				<Image src='/gaming_2.jpg' h={'sm'} rounded={'lg'}/>
+				<Image src='/gaming_3.jpg' h={'sm'} rounded={'lg'}/>
+				<Image src='/gaming_4.jpg' h={'sm'} rounded={'lg'}/>
 			</HStack>
 			{/* <HStack align={'center'} justify={'space-between'} px={16} py={8}>
 				{
