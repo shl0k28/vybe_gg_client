@@ -34,12 +34,12 @@ const Home: NextPage = () => {
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
                 <Button
 					sx={{
-						bg: 'linear-gradient(90deg, #fa81bb, #fcf9a8, #febe48)',
-						color: 'black',
-						borderRadius: '25px',
+						border: '2px',
+						color: '#d27bc0',
+						bg: 'none',
 						_hover: {
-						  bg: 'linear-gradient(90deg, #fa81bb, #fcf9a8, #febe48)',
-						},
+							bg: 'none',
+						}
 					  }}
 				>
                     launch
