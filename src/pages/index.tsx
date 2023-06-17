@@ -1,8 +1,11 @@
 import { NextPage } from 'next'
-import { Box, Button, Stack, HStack, VStack, Text } from '@chakra-ui/react'
+import { Box, Button, Stack, HStack, VStack, Text, Input, Image } from '@chakra-ui/react'
+import { useState } from 'react'
 
 const Home: NextPage = () => {
+
 	const header = `vybe.gg`
+	const [address, setAddress] = useState('0x0')
 
 	const features = [
 		{
@@ -43,20 +46,35 @@ const Home: NextPage = () => {
 				<Text fontSize={'md'} color={'gray.300'}>
 					{`Dive into the minds of your gamers with Vybe.gg - your interstellar tool for player understanding in the gaming cosmos.`}
 				</Text>
+				{/* <HStack w={'full'} justify={'center'}>
+					<Input w={'container.sm'} value={address} onChange={({ target }) => setAddress(target.value)}/>
+					<Button as='a' href={`/${address}`} bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
+						bgColor: 'pink.600',
+						color: 'whiteAlpha.800'
+					}}>
+						Get KYG
+					</Button>
+				</HStack> */}
 			</VStack>
-			<HStack align={'center'} justify={'space-between'} px={16} py={8}>
+			<HStack px={16} justify={'space-evenly'}>
+				<Image src='/gaming_arcade.jpg' h={'sm'} />
+				<Image src='/gaming_2.jpg' h={'sm'} />
+				<Image src='/gaming_3.jpg' h={'sm'} />
+				<Image src='/gaming_4.jpg' h={'sm'} />
+			</HStack>
+			{/* <HStack align={'center'} justify={'space-between'} px={16} py={8}>
 				{
 					features.map(({ title, subTitle, content }, index) => {
 						return(
 							<VStack key={index}>
-								<Text>{title}</Text>
-								<Text>{subTitle}</Text>
-								<Text>{content}</Text>
+								<Text color={'gray.100'}>{title}</Text>
+								<Text color={'gray.300'}>{subTitle}</Text>
+								<Text color={'gray.500'}>{content}</Text>
 							</VStack>
 						)
 					})
 				}
-			</HStack>
+			</HStack> */}
 		</Box>
 	)
 }

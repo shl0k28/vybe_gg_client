@@ -1,6 +1,7 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
@@ -12,9 +13,10 @@ const WalletInfo: NextPage = () => {
 
     const queryClient = useQueryClient()
     const router = useRouter()
-    const { user } = router.query
-    
+
+    const user = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
     // local state
+    // const [address, setAddress] = useState<string>('0x0')
     const [portfolioData, setPortfolioData] = useState<Array<number>>([])
     const [nftBalances, setNftBalances] = useState<any>()
     const [tokenBalances, setTokenBalances] = useState<any>()
@@ -60,20 +62,20 @@ const WalletInfo: NextPage = () => {
         return data
     }
 
-    const historicalPortfolioQuery = useQuery({ queryKey: ['history'], 
-        queryFn: () => getHistoricalPortfolio('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')
+    const portfolioDataQuery = useQuery({ queryKey: ['history'], 
+        queryFn: () => getHistoricalPortfolio('eth-mainnet', user as string)
     })
 
     const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
-        queryFn: () => getNftBalances('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0') 
+        queryFn: () => getNftBalances('eth-mainnet', user) 
     })
 
     const tokenBalanceQuery = useQuery({ queryKey: ['tokenBalances'],
-        queryFn: () => getTokenBalances('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')    
+        queryFn: () => getTokenBalances('eth-mainnet', user as string)    
     })
 
     const userTransactionsQuery = useQuery({ queryKey: ['userTransactions'],
-        queryFn: () => getUserTransactions('eth-mainnet', '0xCF1C64Ac9075D0a41Bb3e7D5A08E8CCAc512b1d0')
+        queryFn: () => getUserTransactions('eth-mainnet', user as string)
     })
 
     const header = `vybe.gg`
@@ -159,14 +161,14 @@ const WalletInfo: NextPage = () => {
                 <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                     {/* Display Total Networth Here */}
                     {
-                        tokenBalances && portfolioData && <VStack h={'80%'} w={'33%'}>
+                        tokenBalances && portfolioData && <VStack h={'80%'} w={'50%'}>
                             {/* <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>Net Worth: ${portfolioData[0].toFixed(2)}</Heading> */}
                             <Pie data={chartData}/>
                         </VStack>
                     }
                     {
                         nftBalances && 
-                        <Stack spacing={8}>
+                        <Stack spacing={8} h={'70vh'} overflowY={'scroll'} overflowX={'scroll'} w={'50%'}>
                             <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>Pixel Treasury</Heading>
                             <TableContainer overflow={'hidden'}>
                                 <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
@@ -202,7 +204,7 @@ const WalletInfo: NextPage = () => {
             <Stack px={16} py={16}>
                     {/* Transaction History Goes Here */}
                     {
-                        historicalPortfolioQuery.data && <div>
+                        portfolioData && <div>
                             <Line data={data} options={options}/>
                         </div>
                     }
