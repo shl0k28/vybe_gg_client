@@ -1,11 +1,14 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
 import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useAccount,useNetwork } from 'wagmi'
+import { categorizeTransaction } from '@/components/CategorizeTxn'
 
 const WalletInfo: NextPage = () => {
     
@@ -13,14 +16,26 @@ const WalletInfo: NextPage = () => {
 
     const queryClient = useQueryClient()
     const router = useRouter()
-
-    const user = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
+    
+    // const user = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
+    // 0x816fe884C2D2137C4F210E6a1d925583fa4A917d
     // local state
-    // const [address, setAddress] = useState<string>('0x0')
     const [portfolioData, setPortfolioData] = useState<Array<number>>([])
     const [nftBalances, setNftBalances] = useState<any>()
     const [tokenBalances, setTokenBalances] = useState<any>()
     const [userTransactions, setUserTransactions] = useState<any>()
+    const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({});
+    const [loading, setLoading] = useState(true); // Add loading state
+    const [userAddress, setUserAddress] = useState<string>('')
+    
+    const { address } : any = useAccount()
+    const { chain } : any = useNetwork()
+
+    useEffect(() => {
+        if (address) {
+            setUserAddress(address)
+        }
+    }, [address, chain])
 
     // get portfolio data
     const getHistoricalPortfolio = async (chainName: string, address: string) => {
@@ -62,21 +77,37 @@ const WalletInfo: NextPage = () => {
         return data
     }
 
-    const portfolioDataQuery = useQuery({ queryKey: ['history'], 
-        queryFn: () => getHistoricalPortfolio('eth-mainnet', user as string)
-    })
+    // const portfolioDataQuery = useQuery({ queryKey: ['history'], 
+    //     queryFn: () => getHistoricalPortfolio('matic-mainnet', user as string)
+    // })
 
-    const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
-        queryFn: () => getNftBalances('eth-mainnet', user) 
-    })
+    // const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
+    //     queryFn: () => getNftBalances('matic-mainnet', user as string) 
+    // })
 
-    const tokenBalanceQuery = useQuery({ queryKey: ['tokenBalances'],
-        queryFn: () => getTokenBalances('eth-mainnet', user as string)    
-    })
+    // const tokenBalanceQuery = useQuery({ queryKey: ['tokenBalances'],
+    //     queryFn: () => getTokenBalances('matic-mainnet', user as string)    
+    // })
 
-    const userTransactionsQuery = useQuery({ queryKey: ['userTransactions'],
-        queryFn: () => getUserTransactions('eth-mainnet', user as string)
-    })
+    // const userTransactionsQuery = useQuery({ queryKey: ['userTransactions'],
+    //     queryFn: () => getUserTransactions('matic-mainnet', user as string)
+    // })
+
+    useEffect(() => {
+        const fetchData = async () => {
+          if (address) {
+            const chainUsed = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
+            await Promise.all([
+              getHistoricalPortfolio(chainUsed, address),
+              getNftBalances(chainUsed, address),
+              getTokenBalances(chainUsed, address),
+              getUserTransactions(chainUsed, address),
+            ])
+            setLoading(false)
+          }
+        }
+        fetchData()
+      }, [address,chain])
 
     const header = `vybe.gg`
     
@@ -140,30 +171,55 @@ const WalletInfo: NextPage = () => {
             'rgba(54, 162, 235, 1)',
             // Add more colors if you have more cryptocurrencies.
           ],
-          borderWidth: 1,
+          borderWidth: 2,
         }],
     };
-    
+
+    const getTxnCategory = async(txnHash: any) => {
+        const cat = await categorizeTransaction("matic-mainnet",txnHash)
+        console.log(cat)
+        return cat
+    }
+
+    useEffect(() => {
+        const fetchTransactionCategories = async () => {
+            const categories: Record<string, any> = {};
+            if (userTransactions && userTransactions.data && userTransactions.data.items) {
+                const categoryPromises = userTransactions.data.items.map((tx: any) => 
+                  getTxnCategory(tx.tx_hash).then((category) => { categories[tx.tx_hash] = category; }));
+
+                await Promise.all(categoryPromises); // Wait for all categories to be fetched
+            }
+            setTransactionCategories(categories);
+            setLoading(false); // Switch off loading state
+        };
+
+        fetchTransactionCategories();
+    }, [userTransactions,chain]);
 
     return(
         <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
             <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center justify-between space-x-8'>
                 <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
-                <Button bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
-                    bgColor: 'pink.600',
-                    color: 'whiteAlpha.800'
-                }}>
-                    get degen score
-                </Button>
+                <div className='flex flex-row space-x-8'>
+                    <ConnectButton/>
+                    <Button bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
+                        bgColor: 'pink.600',
+                        color: 'whiteAlpha.800'
+                    }}>
+                        get degen score
+                    </Button>
+                </div>
             </nav>
             <Stack px={16} fontFamily={'Manrope'}>
-                <Text>{user}</Text>
+                <Text>{userAddress}</Text>
                 <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                     {/* Display Total Networth Here */}
                     {
-                        tokenBalances && portfolioData && <VStack h={'80%'} w={'50%'}>
-                            {/* <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>Net Worth: ${portfolioData[0].toFixed(2)}</Heading> */}
-                            <Pie data={chartData}/>
+                        tokenBalances && portfolioData && 
+                        <VStack h={'35%'} w={'35%'}>
+                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>Net Worth: ${portfolioData[0]?.toFixed(2)}</Heading>
+                            <Pie data={chartData} />
                         </VStack>
                     }
                     {
@@ -204,16 +260,17 @@ const WalletInfo: NextPage = () => {
             <Stack px={16} py={16}>
                     {/* Transaction History Goes Here */}
                     {
-                        portfolioData && <div>
+                        portfolioData && <HStack h={'55%'} w={'55%'}>
                             <Line data={data} options={options}/>
-                        </div>
+                        </HStack>
                     }
             </Stack>
             
-            {/* <Stack px={16} fontFamily={'Manrope'} py={16}>
+            <Stack px={16} fontFamily={'Manrope'} py={16}>
                 <VStack align={'start'}>
-                    {
-                        userTransactions && <Stack>
+                {
+                    userTransactions && (
+                        <Stack>
                             <Heading>Satoshi's Scroll</Heading>
                             <TableContainer>
                                 <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
@@ -223,27 +280,32 @@ const WalletInfo: NextPage = () => {
                                             <Th>From</Th>
                                             <Th>To</Th>
                                             <Th>Hash</Th>
+                                            <Th>Category</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {
-                                            userTransactions && userTransactions.data.items.map((tx: any, index: number) => {
-                                                return(
-                                                    <Tr key={index}>
-                                                        <Td>{tx.from_address.slice(0,5)}...{tx.from_address.slice(-5)}</Td>
-                                                        <Td>{tx.to_address.slice(0,5)}...{tx.to_address.slice(-5)}</Td>
-                                                        <Td>{tx.tx_hash.slice(0,5)}...{tx.tx_hash.slice(-5)}</Td>
-                                                    </Tr>
-                                                )
-                                            })
-                                        }
+                                        {userTransactions.data.items.map((tx: any, index: number) => (
+                                            <Tr key={index}>
+                                                <Td>{tx.from_address.slice(0, 5)}...{tx.from_address.slice(-5)}</Td>
+                                                <Td>{tx.to_address.slice(0, 5)}...{tx.to_address.slice(-5)}</Td>
+                                                <Td>{tx.tx_hash.slice(0, 5)}...{tx.tx_hash.slice(-5)}</Td>
+                                                <Td>
+                                                    {loading ? (
+                                                        <Text>Loading...</Text>
+                                                    ) : (
+                                                        transactionCategories[tx.tx_hash]
+                                                    )}
+                                                </Td>
+                                            </Tr>
+                                        ))}
                                     </Tbody>
                                 </Table>
                             </TableContainer>
                         </Stack>
-                    }
+                    )
+                }
                 </VStack>
-            </Stack> */}
+            </Stack>
         </Box>
     )
 }
