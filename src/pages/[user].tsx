@@ -9,6 +9,7 @@ import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Tabl
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount,useNetwork } from 'wagmi'
 import { categorizeTransaction } from '@/components/CategorizeTxn'
+import { getFunctionSignature } from '@/components/CategorizeTxn'
 
 const WalletInfo: NextPage = () => {
     
@@ -25,6 +26,7 @@ const WalletInfo: NextPage = () => {
     const [tokenBalances, setTokenBalances] = useState<any>()
     const [userTransactions, setUserTransactions] = useState<any>()
     const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({});
+    const [txnFunction, setTxnFunction] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true); // Add loading state
     const [userAddress, setUserAddress] = useState<string>('')
     
@@ -176,26 +178,45 @@ const WalletInfo: NextPage = () => {
     };
 
     const getTxnCategory = async(txnHash: any) => {
-        const cat = await categorizeTransaction("matic-mainnet",txnHash)
+        const cat = await categorizeTransaction("eth-mainnet",txnHash)
         console.log(cat)
         return cat
+    }
+
+    const getTxnFunc = async(txnTo: any,txnHash: any) => {
+        const func = await getFunctionSignature("eth-mainnet",txnTo,txnHash)
+        console.log(func)
+        return func
     }
 
     useEffect(() => {
         const fetchTransactionCategories = async () => {
             const categories: Record<string, any> = {};
+            const functionSignatures: Record<string, any> = {}; // Store function signatures here
+    
             if (userTransactions && userTransactions.data && userTransactions.data.items) {
-                const categoryPromises = userTransactions.data.items.map((tx: any) => 
-                  getTxnCategory(tx.tx_hash).then((category) => { categories[tx.tx_hash] = category; }));
-
+                const categoryPromises = userTransactions.data.items.map(async (tx: any) => {
+                    const category = await getTxnCategory(tx.tx_hash);
+                    categories[tx.tx_hash] = category;
+    
+                    // If the category is 'Contract Call', get the function signature
+                    if (category === 'Contract Call') {
+                        const functionSignature = await getTxnFunc(tx.to_address, tx.tx_hash);
+                        functionSignatures[tx.tx_hash] = functionSignature;
+                    }
+                });
+    
                 await Promise.all(categoryPromises); // Wait for all categories to be fetched
             }
+    
             setTransactionCategories(categories);
+            setTxnFunction(functionSignatures); // You will have to define this state variable
             setLoading(false); // Switch off loading state
         };
-
+    
         fetchTransactionCategories();
-    }, [userTransactions,chain]);
+    }, [userTransactions, chain]);
+    
 
     return(
         <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
@@ -281,6 +302,7 @@ const WalletInfo: NextPage = () => {
                                             <Th>To</Th>
                                             <Th>Hash</Th>
                                             <Th>Category</Th>
+                                            <Th>Function</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -294,6 +316,13 @@ const WalletInfo: NextPage = () => {
                                                         <Text>Loading...</Text>
                                                     ) : (
                                                         transactionCategories[tx.tx_hash]
+                                                    )}
+                                                </Td>
+                                                <Td>
+                                                    {loading ? (
+                                                        <Text>Loading...</Text>
+                                                    ) : (
+                                                        txnFunction[tx.tx_hash]
                                                     )}
                                                 </Td>
                                             </Tr>
