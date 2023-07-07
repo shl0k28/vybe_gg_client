@@ -178,13 +178,15 @@ const WalletInfo: NextPage = () => {
     };
 
     const getTxnCategory = async(txnHash: any) => {
-        const cat = await categorizeTransaction("eth-mainnet",txnHash)
+        const txChain = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
+        const cat = await categorizeTransaction(txChain,txnHash)
         console.log(cat)
         return cat
     }
 
     const getTxnFunc = async(txnTo: any,txnHash: any) => {
-        const func = await getFunctionSignature("eth-mainnet",txnTo,txnHash)
+        const txChain = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
+        const func = await getFunctionSignature(txChain,txnTo,txnHash)
         console.log(func)
         return func
     }
@@ -301,8 +303,7 @@ const WalletInfo: NextPage = () => {
                                             <Th>From</Th>
                                             <Th>To</Th>
                                             <Th>Hash</Th>
-                                            <Th>Category</Th>
-                                            <Th>Function</Th>
+                                            <Th>Function Executed</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -311,7 +312,14 @@ const WalletInfo: NextPage = () => {
                                                 <Td>{tx.from_address.slice(0, 5)}...{tx.from_address.slice(-5)}</Td>
                                                 <Td>{tx.to_address.slice(0, 5)}...{tx.to_address.slice(-5)}</Td>
                                                 <Td>{tx.tx_hash.slice(0, 5)}...{tx.tx_hash.slice(-5)}</Td>
-                                                <Td>
+                                                {
+                                                    (!tx.log_events?.[0]?.decoded?.name ) ? (
+                                                        <Td>{transactionCategories[tx.tx_hash]}</Td>
+                                                    ): (
+                                                        <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
+                                                    )
+                                                }
+                                                {/* <Td>
                                                     {loading ? (
                                                         <Text>Loading...</Text>
                                                     ) : (
@@ -324,7 +332,7 @@ const WalletInfo: NextPage = () => {
                                                     ) : (
                                                         txnFunction[tx.tx_hash]
                                                     )}
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         ))}
                                     </Tbody>
