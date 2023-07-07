@@ -215,7 +215,6 @@ const WalletInfo: NextPage = () => {
             setTxnFunction(functionSignatures); // You will have to define this state variable
             setLoading(false); // Switch off loading state
         };
-    
         fetchTransactionCategories();
     }, [userTransactions, chain]);
     
@@ -314,7 +313,12 @@ const WalletInfo: NextPage = () => {
                                                 <Td>{tx.tx_hash.slice(0, 5)}...{tx.tx_hash.slice(-5)}</Td>
                                                 {
                                                     (!tx.log_events?.[0]?.decoded?.name ) ? (
-                                                        <Td>{transactionCategories[tx.tx_hash]}</Td>
+                                                            loading ? (
+                                                                <Text>Loading...</Text>
+                                                            ):
+                                                            (
+                                                                <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
+                                                            )
                                                     ): (
                                                         <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
                                                     )

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import axios from 'axios'
-let ethMainnetProviderUrl = process.env.ETH_MAINNET_PROVIDER_URL;
-let maticMainnetProviderUrl = process.env.MATIC_MAINNET_PROVIDER_URL;
+let ethMainnetProviderUrl = "https://eth-mainnet.g.alchemy.com/v2/LatuiPPNGhXoq-yKXOr75pOLko1WxUxN"
+let maticMainnetProviderUrl = "https://polygon-mainnet.g.alchemy.com/v2/s5BwByPukIVosEOZEfXU68neTN4WsDOy"
 
 export const categorizeTransaction = async (chainName: string,transactionHash:any) => {
     let provider = new ethers.providers.JsonRpcProvider(chainName === 'eth-mainnet' ? ethMainnetProviderUrl : maticMainnetProviderUrl);
