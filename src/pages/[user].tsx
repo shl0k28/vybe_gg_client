@@ -21,11 +21,12 @@ const WalletInfo: NextPage = () => {
     // const user = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
     // 0x816fe884C2D2137C4F210E6a1d925583fa4A917d
     // local state
-    const [portfolioData, setPortfolioData] = useState<Array<number>>([])
-    const [nftBalances, setNftBalances] = useState<any>()
-    const [tokenBalances, setTokenBalances] = useState<any>()
-    const [userTransactions, setUserTransactions] = useState<any>()
-    const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({});
+    const [portfolioData, setPortfolioData] = useState<Record<string, Array<number>>>({})
+    const [nftBalances, setNftBalances] = useState<Record<string, any>>({})
+    const [tokenBalances, setTokenBalances] = useState<Record<string, any>>({})
+    const [userTransactions, setUserTransactions] = useState<Record<string, any>>({})
+    const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({})
+    
     const [txnFunction, setTxnFunction] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true); // Add loading state
     const [userAddress, setUserAddress] = useState<string>('')
@@ -44,8 +45,7 @@ const WalletInfo: NextPage = () => {
         let url = `http://localhost:8080/api/fetch/portfolio?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
-        setPortfolioData(data)
-        console.log(data)
+        setPortfolioData((prevData) => ({ ...prevData, [chainName]: data }))
         return data
     }
 
@@ -54,8 +54,7 @@ const WalletInfo: NextPage = () => {
         let url = `http://localhost:8080/api/fetch/nftBalance?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
-        setNftBalances(data)
-        console.log(data)
+        setNftBalances((prevData) => ({ ...prevData, [chainName]: data }))
         return data
     }
 
@@ -64,8 +63,7 @@ const WalletInfo: NextPage = () => {
         let url = `http://localhost:8080/api/fetch/tokenBalance?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
-        setTokenBalances(data)
-        console.log(data)
+        setTokenBalances((prevData) => ({ ...prevData, [chainName]: data }))
         return data
     }
 
@@ -74,10 +72,10 @@ const WalletInfo: NextPage = () => {
         let url = `http://localhost:8080/api/fetch/transactions?chainName=${chainName}&address=${address}`
         const res = await fetch(url, { method: 'GET' })
         const data = await res.json()
-        setUserTransactions(data)
-        console.log(data)
+        setUserTransactions((prevData) => ({ ...prevData, [chainName]: data }))
         return data
     }
+    
 
     // const portfolioDataQuery = useQuery({ queryKey: ['history'], 
     //     queryFn: () => getHistoricalPortfolio('matic-mainnet', user as string)
@@ -97,19 +95,24 @@ const WalletInfo: NextPage = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-          if (address) {
-            const chainUsed = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
-            await Promise.all([
-              getHistoricalPortfolio(chainUsed, address),
-              getNftBalances(chainUsed, address),
-              getTokenBalances(chainUsed, address),
-              getUserTransactions(chainUsed, address),
-            ])
-            setLoading(false)
-          }
+            if (address) {
+                const chains = ['eth-mainnet', 'matic-mainnet','matic-mumbai'] // Add more networks
+                await Promise.all(
+                    chains.map((chainName) =>
+                        Promise.all([
+                            getHistoricalPortfolio(chainName, address),
+                            getNftBalances(chainName, address),
+                            getTokenBalances(chainName, address),
+                            getUserTransactions(chainName, address),
+                        ])
+                    )
+                )
+                setLoading(false)
+            }
         }
         fetchData()
-      }, [address,chain])
+    }, [address])
+    
 
     const header = `vybe.gg`
     
@@ -138,16 +141,14 @@ const WalletInfo: NextPage = () => {
 
     const data = {
         labels: getLast30Days(),
-        datasets: [
-          {
-            label: 'Total Networth($USD)',
-            data: portfolioData,
-            backgroundColor: 'rgb(135, 206, 235, 1)',
-            borderColor: 'rgba(135, 206, 235, 0.2)',
-          },
-        ],
+        datasets: Object.keys(portfolioData).map((chainName, index) => ({
+          label: `Total Networth (${chainName})`,
+          data: portfolioData[chainName],
+          backgroundColor: backgroundColor[index % backgroundColor.length],
+          borderColor: 'rgba(135, 206, 235, 0.2)',
+        })),
         fill: true
-    };
+      };
 
     const options = {
         scales: {
@@ -156,27 +157,31 @@ const WalletInfo: NextPage = () => {
           },
         },
     };
+
+    const combinedTokenBalances = Object.values(tokenBalances).flatMap((balances) => balances?.actualTokens ?? []);
+    const combinedPercentages = Object.values(tokenBalances).flatMap((balances) => balances?.percentagesArray ?? []);
     
     let chartLabels = []
-    for(let i = 0; i < tokenBalances?.actualTokens.length; i++) {
+    for(let i = 0; i < tokenBalances?.actualTokens?.length; i++) {
         chartLabels.push(tokenBalances?.actualTokens[i].contract_ticker_symbol)
     }
 
-    const chartData = {
-        labels: chartLabels,
-        datasets: [{
-          label: 'Token Balances(%)',
-          data: tokenBalances?.percentagesArray,
-          backgroundColor: backgroundColor,
-          borderColor: [
+    const chartDataset = {
+        labels: combinedTokenBalances.map((token) => token.contract_ticker_symbol),
+        datasets: [
+          {
+            label: 'Token Balances(%)',
+            data: combinedPercentages,
+            backgroundColor: backgroundColor.slice(0, combinedPercentages.length),
+            borderColor:[
             'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
-            // Add more colors if you have more cryptocurrencies.
-          ],
-          borderWidth: 2,
-        }],
-    };
-
+            ],
+            borderWidth: 2,
+          },
+        ],
+      };
+    
     const getTxnCategory = async(txnHash: any) => {
         const txChain = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
         const cat = await categorizeTransaction(txChain,txnHash)
@@ -217,37 +222,48 @@ const WalletInfo: NextPage = () => {
         };
         fetchTransactionCategories();
     }, [userTransactions, chain]);
+
+    const getTotalNetWorth = () => {
+        let totalNetWorth = 0;
+        Object.values(portfolioData).forEach((data: Array<number>) => {
+          totalNetWorth += data[0];
+        });
+        return totalNetWorth.toFixed(2);
+      };
     
 
-    return(
-        <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
-            <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center justify-between space-x-8'>
-                <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
-                <div className='flex flex-row space-x-8'>
-                    <ConnectButton/>
-                    <Button bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
-                        bgColor: 'pink.600',
-                        color: 'whiteAlpha.800'
-                    }}>
-                        get degen score
+    return (
+            <Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
+                <nav className='bg-[#08090c] text-white px-16 py-8 flex items-center justify-between space-x-8'>
+                    <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
+                    <div className='flex flex-row space-x-8'>
+                    <ConnectButton />
+                    <Button
+                        bgColor={'pink.800'}
+                        color={'whiteAlpha.700'}
+                        _hover={{
+                            bgColor: 'pink.600',
+                            color: 'whiteAlpha.800',
+                            }}
+                    >
+                    get degen score
                     </Button>
-                </div>
-            </nav>
-            <Stack px={16} fontFamily={'Manrope'}>
-                <Text>{userAddress}</Text>
-                <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
-                    {/* Display Total Networth Here */}
-                    {
-                        tokenBalances && portfolioData && 
+                    </div>
+                </nav>
+                <Stack px={16} fontFamily={'Manrope'}>
+                    <Text>{userAddress}</Text>
+                    <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
                         <VStack h={'35%'} w={'35%'}>
-                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>Net Worth: ${portfolioData[0]?.toFixed(2)}</Heading>
-                            <Pie data={chartData} />
+                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'}>
+                                Net Worth: ${getTotalNetWorth()}
+                            </Heading>
+                            <Pie data={chartDataset} />
                         </VStack>
-                    }
-                    {
-                        nftBalances && 
+
                         <Stack spacing={8} h={'70vh'} overflowY={'scroll'} overflowX={'scroll'} w={'50%'}>
-                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>Pixel Treasury</Heading>
+                            <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>
+                                Pixel Treasury 
+                            </Heading>
                             <TableContainer overflow={'hidden'}>
                                 <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
                                     <TableCaption>NFT Index</TableCaption>
@@ -257,98 +273,72 @@ const WalletInfo: NextPage = () => {
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Contract</Th>
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Balance</Th>
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Last Activity</Th>
+                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Chain Name</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {
-                                            nftBalances && nftBalances.data.items.map((nft: any, index: number) => {
-                                                return (
-                                                    <Tr key={index}>
-                                                        <Td>{nft.contract_name}</Td>
-                                                        <Td>{nft.contract_address.slice(0,5)}...{nft.contract_address.slice(-5)}</Td>
-                                                        <Td>{nft.balance}</Td>
-                                                        <Td>{new Date(nft.last_transfered_at).toLocaleDateString()}</Td>
-                                                    </Tr>
-                                                )
-                                            })
-                                        }
+                                        {Object.keys(nftBalances).flatMap((chainName) =>
+                                            nftBalances[chainName]?.data.items.map((nft: any, index: number) => (
+                                            <Tr key={index}>
+                                                <Td>{nft.contract_name}</Td>
+                                                <Td>{nft.contract_address.slice(0, 5)}...{nft.contract_address.slice(-5)}</Td>
+                                                <Td>{nft.balance}</Td>
+                                                <Td>{new Date(nft.last_transfered_at).toLocaleDateString()}</Td>
+                                                <Td>{chainName}</Td>
+                                            </Tr>
+                                        )))}
                                     </Tbody>
                                 </Table>
                             </TableContainer>
                         </Stack>
-                    }
-                </HStack>
-            </Stack>
-            <Stack px={16} py={16}>
-                    {/* Transaction History Goes Here */}
-                    {
-                        portfolioData && <HStack h={'55%'} w={'55%'}>
-                            <Line data={data} options={options}/>
-                        </HStack>
-                    }
-            </Stack>
-            
-            <Stack px={16} fontFamily={'Manrope'} py={16}>
-                <VStack align={'start'}>
-                {
-                    userTransactions && (
+
+                    </HStack>
+                    <Stack h={'55%'} w={'55%'}>
+                        <Line data={data} options={options} />
+                    </Stack>
+                    <VStack align={'start'}>
                         <Stack>
                             <Heading>Satoshi's Scroll</Heading>
                             <TableContainer>
                                 <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
                                     <TableCaption>Transaction History</TableCaption>
-                                    <Thead>
-                                        <Tr>
-                                            <Th>From</Th>
-                                            <Th>To</Th>
-                                            <Th>Hash</Th>
-                                            <Th>Function Executed</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {userTransactions.data.items.map((tx: any, index: number) => (
-                                            <Tr key={index}>
-                                                <Td>{tx.from_address.slice(0, 5)}...{tx.from_address.slice(-5)}</Td>
-                                                <Td>{tx.to_address.slice(0, 5)}...{tx.to_address.slice(-5)}</Td>
-                                                <Td>{tx.tx_hash.slice(0, 5)}...{tx.tx_hash.slice(-5)}</Td>
-                                                {
-                                                    (!tx.log_events?.[0]?.decoded?.name ) ? (
-                                                            loading ? (
-                                                                <Text>Loading...</Text>
-                                                            ):
-                                                            (
-                                                                <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
-                                                            )
-                                                    ): (
-                                                        <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
-                                                    )
-                                                }
-                                                {/* <Td>
-                                                    {loading ? (
-                                                        <Text>Loading...</Text>
-                                                    ) : (
-                                                        transactionCategories[tx.tx_hash]
-                                                    )}
-                                                </Td>
-                                                <Td>
-                                                    {loading ? (
-                                                        <Text>Loading...</Text>
-                                                    ) : (
-                                                        txnFunction[tx.tx_hash]
-                                                    )}
-                                                </Td> */}
+                                        <Thead>
+                                            <Tr>
+                                                <Th>From</Th>
+                                                <Th>To</Th>
+                                                <Th>Hash</Th>
+                                                <Th>Function Executed</Th>
+                                                <Th>Chain Name</Th>
                                             </Tr>
-                                        ))}
-                                    </Tbody>
+                                        </Thead>
+                                        <Tbody>
+                                            {Object.keys(userTransactions).flatMap((chainName) =>
+                                            userTransactions[chainName]?.data.items.map((tx: any, index: number) => (
+                                            <Tr key={index}>
+                                                <Td>{tx.from_address?.slice(0, 5)}...{tx.from_address?.slice(-5)}</Td>
+                                                <Td>{tx.to_address?.slice(0, 5)}...{tx.to_address?.slice(-5)}</Td>
+                                                <Td>{tx.tx_hash?.slice(0, 5)}...{tx.tx_hash?.slice(-5)}</Td>
+                                                {!tx.log_events?.[0]?.decoded?.name ? (
+                                                    loading ? (
+                                                    <Text>Loading...</Text>
+                                                    ) : (
+                                                    <Td>{transactionCategories[tx.tx_hash]}</Td>
+                                                    )
+                                                ) : (
+                                                    <Td>{tx.log_events?.[0]?.decoded?.name}</Td>
+                                                )}
+                                                    <Td>{chainName}</Td>
+                                            </Tr>
+                                            ))
+                                            )}
+                                        </Tbody>
                                 </Table>
                             </TableContainer>
                         </Stack>
-                    )
-                }
-                </VStack>
-            </Stack>
-        </Box>
-    )
+                    </VStack>
+                </Stack>
+            </Box>
+        );  
 }
 
 export default WalletInfo
