@@ -1,11 +1,13 @@
 import { NextPage } from 'next'
 import { Box, Button, Stack, HStack, VStack, Text, Input, Image } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useRouter } from 'next/router'
 
 const Home: NextPage = () => {
+  const router = useRouter()
 
-	const header = `vybe.gg`
-	const [address, setAddress] = useState('0x0')
+  const header = `vybe.gg`
+  const [address, setAddress] = useState('0x0')
 
 	const features = [
 		{
@@ -28,23 +30,30 @@ const Home: NextPage = () => {
 		}
 	]
 
+	const handleLaunchClick = () => {
+		router.push('/dashboard')
+	}
+
 	return(
 		<Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
-			<nav className='bg-[#08090c] text-gray-300 px-16 py-8 flex items-center justify-between space-x-8'>
-                <h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>{header}</h1>
-                <Button
-					sx={{
-						border: '2px',
-						color: '#d27bc0',
-						bg: 'none',
-						_hover: {
-							bg: 'none',
-						}
-					  }}
+			 <nav className='bg-[#08090c] text-gray-300 px-16 py-8 flex items-center justify-between space-x-8'>
+				<h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>
+				{header}
+				</h1>
+				<Button
+				sx={{
+					border: '2px',
+					color: '#d27bc0',
+					bg: 'none',
+					_hover: {
+					bg: 'none',
+					},
+				}}
+				onClick={handleLaunchClick}
 				>
-                    launch
-                </Button>
-            </nav>
+				launch
+				</Button>
+			</nav>
 			<VStack px={16} py={8} spacing={4}>
 				<Text fontFamily={'Jura'} fontSize={'3xl'} color={'gray.100'} fontWeight={'bold'}>
 					{`Ride the Vybe: Welcome to the Future of Gaming Insights`}
