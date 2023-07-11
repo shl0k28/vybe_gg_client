@@ -18,7 +18,7 @@ const WalletInfo: NextPage = () => {
     const queryClient = useQueryClient()
     const router = useRouter()
     
-    // const user = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
+    // const address = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
     // 0x816fe884C2D2137C4F210E6a1d925583fa4A917d
     // local state
     const [portfolioData, setPortfolioData] = useState<Record<string, Array<number>>>({})
@@ -127,7 +127,18 @@ const WalletInfo: NextPage = () => {
         'rgba(255, 255, 99, 0.2)',   // light yellow
         'rgba(99, 255, 132, 0.2)',   // light green
         'rgba(99, 132, 255, 0.2)',   // light blue
-    ]
+        'rgba(255, 0, 0, 0.2)',      // bright red
+        'rgba(0, 255, 0, 0.2)',      // bright green
+        'rgba(0, 0, 255, 0.2)',      // bright blue
+        'rgba(255, 255, 0, 0.2)',    // bright yellow
+        'rgba(255, 0, 255, 0.2)',    // bright magenta
+        'rgba(0, 255, 255, 0.2)',    // bright cyan
+        'rgba(128, 0, 0, 0.2)',      // dark red
+        'rgba(0, 128, 0, 0.2)',      // dark green
+        'rgba(0, 0, 128, 0.2)',      // dark blue
+        // Add more colors as needed
+      ];
+      
 
     function getLast30Days() {
         const dates = Array.from({length: 30}, (_, i) => {
@@ -139,16 +150,44 @@ const WalletInfo: NextPage = () => {
         return dates.reverse()
     }
 
-    const data = {
+    const chainColors : any= {
+        'eth-mainnet': 'rgba(255, 99, 132, 0.2)',
+        'matic-mainnet': 'rgba(54, 162, 235, 0.2)',
+        'matic-mumbai': 'rgba(255, 206, 86, 0.2)',
+        // Add more chains and colors as needed
+      };
+      
+      const data = {
         labels: getLast30Days(),
         datasets: Object.keys(portfolioData).map((chainName, index) => ({
           label: `Total Networth (${chainName})`,
           data: portfolioData[chainName],
-          backgroundColor: backgroundColor[index % backgroundColor.length],
-          borderColor: 'rgba(135, 206, 235, 0.2)',
+          backgroundColor: chainColors[index % backgroundColor.length],
+          borderColor: chainColors[index % backgroundColor.length],
         })),
-        fill: true
+        fill: true,
       };
+      
+
+      //for displaying line chart for all data across all chains combined
+    //   const data = {
+    //     labels: getLast30Days(),
+    //     datasets: [
+    //       {
+    //         label: 'Total Networth',
+    //         data: Object.values(portfolioData).reduce((combinedData, chainData) => {
+    //           chainData.forEach((value, index) => {
+    //             combinedData[index] = (combinedData[index] || 0) + value;
+    //           });
+    //           return combinedData;
+    //         }, []),
+    //         backgroundColor: 'rgb(135, 206, 235, 1)',
+    //         borderColor: 'rgba(135, 206, 235, 0.2)',
+    //       },
+    //     ],
+    //     fill: true,
+    //   };
+       
 
     const options = {
         scales: {
@@ -166,6 +205,9 @@ const WalletInfo: NextPage = () => {
         chartLabels.push(tokenBalances?.actualTokens[i].contract_ticker_symbol)
     }
 
+
+    
+    
     const chartDataset = {
         labels: combinedTokenBalances.map((token) => token.contract_ticker_symbol),
         datasets: [
@@ -173,14 +215,18 @@ const WalletInfo: NextPage = () => {
             label: 'Token Balances(%)',
             data: combinedPercentages,
             backgroundColor: backgroundColor.slice(0, combinedPercentages.length),
-            borderColor:[
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              // Add more colors as needed
             ],
             borderWidth: 2,
           },
         ],
       };
+      
+    
+
     
     const getTxnCategory = async(txnHash: any) => {
         const txChain = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
@@ -226,10 +272,11 @@ const WalletInfo: NextPage = () => {
     const getTotalNetWorth = () => {
         let totalNetWorth = 0;
         Object.values(portfolioData).forEach((data: Array<number>) => {
-          totalNetWorth += data[0];
+          totalNetWorth += data.reduce((sum, value) => sum + value, 0);
         });
         return totalNetWorth.toFixed(2);
       };
+      
     
 
     return (
