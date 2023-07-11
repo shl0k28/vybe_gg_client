@@ -307,15 +307,15 @@ const WalletInfo: NextPage = () => {
                             <Pie data={chartDataset} />
                         </VStack>
 
-                        <Stack spacing={8} h={'70vh'} overflowY={'scroll'} overflowX={'scroll'} w={'50%'}>
+                        <Stack spacing={8} h={'70vh'} w={'50%'}>
                             <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>
                                 Pixel Treasury 
                             </Heading>
-                            <TableContainer overflow={'hidden'}>
+                            <TableContainer style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                                 <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
                                     <TableCaption>NFT Index</TableCaption>
                                     <Thead>
-                                        <Tr>
+                                        <Tr style={{position: 'sticky', top: '0', background: '#F8F8FF'}}>
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Name</Th>
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Contract</Th>
                                             <Th fontFamily={'mono'} letterSpacing={'widest'}>Balance</Th>
@@ -339,18 +339,20 @@ const WalletInfo: NextPage = () => {
                             </TableContainer>
                         </Stack>
 
+
                     </HStack>
-                    <Stack h={'55%'} w={'55%'}>
-                        <Line data={data} options={options} />
-                    </Stack>
-                    <VStack align={'start'}>
-                        <Stack>
-                            <Heading>Satoshi's Scroll</Heading>
-                            <TableContainer>
-                                <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
-                                    <TableCaption>Transaction History</TableCaption>
+                    <HStack display={'flex'} alignItems={'center'} justify={'space-between'}>
+                        <Stack h={'45%'} w={'45%'}>
+                            <Line data={data} options={options} />
+                        </Stack>
+                        <VStack align={'start'}>
+                            <Stack>
+                                <Heading>Satoshi's Scroll</Heading>
+                                <TableContainer style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                    <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
+                                        <TableCaption>Transaction History</TableCaption>
                                         <Thead>
-                                            <Tr>
+                                            <Tr style={{position: 'sticky', top: '0', background: '#F8F8FF'}}>
                                                 <Th>From</Th>
                                                 <Th>To</Th>
                                                 <Th>Hash</Th>
@@ -379,10 +381,11 @@ const WalletInfo: NextPage = () => {
                                             ))
                                             )}
                                         </Tbody>
-                                </Table>
-                            </TableContainer>
-                        </Stack>
-                    </VStack>
+                                    </Table>
+                                </TableContainer>
+                            </Stack>
+                        </VStack>
+                    </HStack>
                 </Stack>
             </Box>
         );  
