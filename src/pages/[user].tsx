@@ -5,7 +5,7 @@ import { useState, useEffect, use } from 'react'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
-import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react'
+import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td, Select } from '@chakra-ui/react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount,useNetwork } from 'wagmi'
 import { categorizeTransaction } from '@/components/CategorizeTxn'
@@ -26,7 +26,7 @@ const WalletInfo: NextPage = () => {
     const [tokenBalances, setTokenBalances] = useState<Record<string, any>>({})
     const [userTransactions, setUserTransactions] = useState<Record<string, any>>({})
     const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({})
-    
+    const [selectedChain, setSelectedChain] = useState<string>('all');
     const [txnFunction, setTxnFunction] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true); // Add loading state
     const [userAddress, setUserAddress] = useState<string>('')
@@ -93,10 +93,12 @@ const WalletInfo: NextPage = () => {
     //     queryFn: () => getUserTransactions('matic-mainnet', user as string)
     // })
 
+    const chains = ['eth-mainnet', 'matic-mainnet', 'matic-mumbai']; // Add more networks
+
+
     useEffect(() => {
         const fetchData = async () => {
             if (address) {
-                const chains = ['eth-mainnet', 'matic-mainnet','matic-mumbai'] // Add more networks
                 await Promise.all(
                     chains.map((chainName) =>
                         Promise.all([
@@ -112,6 +114,10 @@ const WalletInfo: NextPage = () => {
         }
         fetchData()
     }, [address])
+
+    const handleChainSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedChain(event.target.value);
+    }
     
 
     const header = `vybe.gg`
@@ -137,37 +143,37 @@ const WalletInfo: NextPage = () => {
         'rgba(0, 128, 0, 0.2)',      // dark green
         'rgba(0, 0, 128, 0.2)',      // dark blue
         // Add more colors as needed
-      ];
+    ];
       
 
-    function getLast30Days() {
-        const dates = Array.from({length: 30}, (_, i) => {
+    function getLast12Months() {
+        const dates = Array.from({length: 12}, (_, i) => {
             const d = new Date();
-            d.setDate(d.getDate() - i);
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            d.setMonth(d.getMonth() - i);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         });
-    
-        return dates.reverse()
+        return dates.reverse();
     }
-
+    
     const chainColors : any= {
         'eth-mainnet': 'rgba(255, 99, 132, 0.2)',
         'matic-mainnet': 'rgba(54, 162, 235, 0.2)',
         'matic-mumbai': 'rgba(255, 206, 86, 0.2)',
         // Add more chains and colors as needed
-      };
-      
-      const data = {
-        labels: getLast30Days(),
+    };
+    
+    const data = {
+        labels: getLast12Months(),
         datasets: Object.keys(portfolioData).map((chainName, index) => ({
-          label: `Total Networth (${chainName})`,
-          data: portfolioData[chainName],
-          backgroundColor: chainColors[index % backgroundColor.length],
-          borderColor: chainColors[index % backgroundColor.length],
+            label: `Total Networth (${chainName})`,
+            data: portfolioData[chainName],
+            backgroundColor: chainColors[index% backgroundColor.length],
+            borderColor: chainColors[index% backgroundColor.length],
         })),
         fill: true,
-      };
-      
+    };
+    
+
 
       //for displaying line chart for all data across all chains combined
     //   const data = {
@@ -348,7 +354,13 @@ const WalletInfo: NextPage = () => {
                         <VStack align={'start'}>
                             <Stack>
                                 <Heading>Satoshi's Scroll</Heading>
-                                <TableContainer style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                <Select placeholder="Select chain" color={'#F8F8FF'} value={selectedChain} onChange={handleChainSelection}>
+                                    <option value="all">All</option>
+                                    {chains.map((chain) => (
+                                        <option key={chain} value={chain}>{chain}</option>
+                                    ))}
+                                </Select>
+                                <TableContainer width="50vw" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                                     <Table variant={'simple'} border={'#21FC0D'} color={'#F8F8FF'}>
                                         <TableCaption>Transaction History</TableCaption>
                                         <Thead>
@@ -361,7 +373,7 @@ const WalletInfo: NextPage = () => {
                                             </Tr>
                                         </Thead>
                                         <Tbody>
-                                            {Object.keys(userTransactions).flatMap((chainName) =>
+                                            {(selectedChain === "all" ? Object.keys(userTransactions) : [selectedChain]).flatMap((chainName) =>
                                             userTransactions[chainName]?.data.items.map((tx: any, index: number) => (
                                             <Tr key={index}>
                                                 <Td>{tx.from_address?.slice(0, 5)}...{tx.from_address?.slice(-5)}</Td>
