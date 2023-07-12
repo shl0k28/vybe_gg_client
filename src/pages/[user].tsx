@@ -6,10 +6,13 @@ import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { Line, Pie } from 'react-chartjs-2'
 import { Chart as ChartJs, registerables } from 'chart.js'
 import { Button, Box, HStack, VStack, Stack, Heading, Text, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td, Select } from '@chakra-ui/react'
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount,useNetwork } from 'wagmi'
 import { categorizeTransaction } from '@/components/CategorizeTxn'
 import { getFunctionSignature } from '@/components/CategorizeTxn'
+import Image from 'next/image'
 
 const WalletInfo: NextPage = () => {
     
@@ -283,6 +286,23 @@ const WalletInfo: NextPage = () => {
         return totalNetWorth.toFixed(2);
       };
       
+    const getOpenseaUrl = (chainName : any , contractAddress : any, tokenId :any) => {
+        let openseaChainName : string = ''
+        if(chainName == 'eth-mainnet' || chainName == 'matic-mainnet') {
+            if(chainName == 'eth-mainnet') {
+                openseaChainName = 'ethereum'
+            }
+            else if(chainName == 'matic-mainnet') {
+                openseaChainName = 'matic'
+            }  
+            return `https://opensea.io/assets/${openseaChainName}/${contractAddress}/${tokenId}`
+        }
+        else {
+            openseaChainName = 'mumbai'
+            return `https://testnets.opensea.io/assets/${openseaChainName}/${contractAddress}/${tokenId}`
+        }
+
+    }
     
 
     return (
@@ -317,32 +337,26 @@ const WalletInfo: NextPage = () => {
                             <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>
                                 Pixel Treasury 
                             </Heading>
-                            <TableContainer style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                                <Table variant={'striped'} color={'#F8F8FF'} colorScheme='blackAlpha'>
-                                    <TableCaption>NFT Index</TableCaption>
-                                    <Thead>
-                                        <Tr style={{position: 'sticky', top: '0', background: '#F8F8FF'}}>
-                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Name</Th>
-                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Contract</Th>
-                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Balance</Th>
-                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Last Activity</Th>
-                                            <Th fontFamily={'mono'} letterSpacing={'widest'}>Chain Name</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {Object.keys(nftBalances).flatMap((chainName) =>
-                                            nftBalances[chainName]?.data.items.map((nft: any, index: number) => (
-                                            <Tr key={index}>
-                                                <Td>{nft.contract_name}</Td>
-                                                <Td>{nft.contract_address.slice(0, 5)}...{nft.contract_address.slice(-5)}</Td>
-                                                <Td>{nft.balance}</Td>
-                                                <Td>{new Date(nft.last_transfered_at).toLocaleDateString()}</Td>
-                                                <Td>{chainName}</Td>
-                                            </Tr>
-                                        )))}
-                                    </Tbody>
-                                </Table>
-                            </TableContainer>
+                            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                                <Carousel showThumbs={false} dynamicHeight={false}>
+                                    {Object.keys(nftBalances).flatMap((chainName) =>
+                                        nftBalances[chainName]?.data.items.map((nft: any, index: number) => (
+                                            <Box key={index} py="10" rounded="md">
+                                                <a href={getOpenseaUrl(chainName, nft.contract_address, nft?.nft_data[0].token_id)} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="block">
+                                                    <img src={nft?.nft_data[0].external_data?.image || "https://via.placeholder.com/150"} 
+                                                        alt={nft?.contract_name || "NFT image"} 
+                                                        className="object-contain h-[20rem] rounded-xl mb-4 " />
+                                                </a>
+                                                <Text fontFamily="mono" fontSize="xl" mb="1" color={'#F8F8FF'}>{nft.contract_name}</Text>
+                                                <Text fontFamily="mono" fontSize="sm" color={'#F8F8FF'}>{chainName}</Text>
+                                            </Box>
+                                        ))
+                                    )}
+                                </Carousel>
+                            </div>
                         </Stack>
 
 
