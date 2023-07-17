@@ -12,7 +12,6 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount,useNetwork } from 'wagmi'
 import { categorizeTransaction } from '@/components/CategorizeTxn'
 import { getFunctionSignature } from '@/components/CategorizeTxn'
-import Image from 'next/image'
 
 const WalletInfo: NextPage = () => {
     
@@ -30,10 +29,10 @@ const WalletInfo: NextPage = () => {
     const [userTransactions, setUserTransactions] = useState<Record<string, any>>({})
     const [transactionCategories, setTransactionCategories] = useState<Record<string, any>>({})
     const [selectedChain, setSelectedChain] = useState<string>('all');
+    const [selectedChainNFT, setSelectedChainNFT] = useState<string>('all');
     const [txnFunction, setTxnFunction] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true); // Add loading state
     const [userAddress, setUserAddress] = useState<string>('')
-    
     const { address } : any = useAccount()
     const { chain } : any = useNetwork()
 
@@ -79,7 +78,6 @@ const WalletInfo: NextPage = () => {
         return data
     }
     
-
     // const portfolioDataQuery = useQuery({ queryKey: ['history'], 
     //     queryFn: () => getHistoricalPortfolio('matic-mainnet', user as string)
     // })
@@ -97,7 +95,6 @@ const WalletInfo: NextPage = () => {
     // })
 
     const chains = ['eth-mainnet', 'matic-mainnet', 'matic-mumbai']; // Add more networks
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -121,7 +118,10 @@ const WalletInfo: NextPage = () => {
     const handleChainSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedChain(event.target.value);
     }
-    
+
+    const handleChainSelectionNFT = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedChainNFT(event.target.value);
+    }
 
     const header = `vybe.gg`
     
@@ -147,7 +147,6 @@ const WalletInfo: NextPage = () => {
         'rgba(0, 0, 128, 0.2)',      // dark blue
         // Add more colors as needed
     ];
-      
 
     function getLast12Months() {
         const dates = Array.from({length: 12}, (_, i) => {
@@ -175,10 +174,8 @@ const WalletInfo: NextPage = () => {
         })),
         fill: true,
     };
-    
 
-
-      //for displaying line chart for all data across all chains combined
+    // for displaying line chart for all data across all chains combined
     //   const data = {
     //     labels: getLast30Days(),
     //     datasets: [
@@ -197,7 +194,6 @@ const WalletInfo: NextPage = () => {
     //     fill: true,
     //   };
        
-
     const options = {
         scales: {
           y: {
@@ -212,10 +208,7 @@ const WalletInfo: NextPage = () => {
     let chartLabels = []
     for(let i = 0; i < tokenBalances?.actualTokens?.length; i++) {
         chartLabels.push(tokenBalances?.actualTokens[i].contract_ticker_symbol)
-    }
-
-
-    
+    } 
     
     const chartDataset = {
         labels: combinedTokenBalances.map((token) => token.contract_ticker_symbol),
@@ -233,10 +226,7 @@ const WalletInfo: NextPage = () => {
           },
         ],
       };
-      
-    
 
-    
     const getTxnCategory = async(txnHash: any) => {
         const txChain = (chain.id == '1' ? 'eth-mainnet' : 'matic-mainnet')
         const cat = await categorizeTransaction(txChain,txnHash)
@@ -337,9 +327,15 @@ const WalletInfo: NextPage = () => {
                             <Heading fontFamily={'Jura'} color={'whiteAlpha.900'} textAlign={'center'}>
                                 Pixel Treasury 
                             </Heading>
-                            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                            <Select placeholder="Select chain" color={'#F8F8FF'} value={selectedChainNFT} onChange={handleChainSelectionNFT}>
+                                    <option value="all">All</option>
+                                    {chains.map((chain) => (
+                                        <option key={chain} value={chain}>{chain}</option>
+                                    ))}
+                            </Select>
+                            <div style={{ maxHeight: '60vh' }}>
                                 <Carousel showThumbs={false} dynamicHeight={false}>
-                                    {Object.keys(nftBalances).flatMap((chainName) =>
+                                {(selectedChainNFT === "all" ? Object.keys(nftBalances) : [selectedChainNFT]).flatMap((chainName) =>
                                         nftBalances[chainName]?.data.items.map((nft: any, index: number) => (
                                             <Box key={index} py="10" rounded="md">
                                                 <a href={getOpenseaUrl(chainName, nft.contract_address, nft?.nft_data[0].token_id)} 
