@@ -12,6 +12,13 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount,useNetwork } from 'wagmi'
 import { categorizeTransaction } from '@/components/CategorizeTxn'
 import { getFunctionSignature } from '@/components/CategorizeTxn'
+import { create } from 'ipfs-http-client'
+
+const ipfs = create({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https'
+  });
 
 const WalletInfo: NextPage = () => {
     
@@ -94,6 +101,43 @@ const WalletInfo: NextPage = () => {
     //     queryFn: () => getUserTransactions('matic-mainnet', user as string)
     // })
 
+    const storeUserDataToIpfs = async () => {
+        const userData = {
+            portfolioData,
+            nftBalances,
+            tokenBalances,
+            userTransactions,
+            transactionCategories,
+            txnFunction,
+            userAddress,
+        };
+
+        try {
+            const ipfsResult = await ipfs.add(JSON.stringify(userData));
+            console.log(`User data stored successfully on IPFS. CID: ${ipfsResult.path}`);
+            await fetchUserDataFromIpfs(ipfsResult.path);
+        } catch (error) {
+            console.error("Failed to store user data to IPFS:", error);
+        }
+    };
+
+    const fetchUserDataFromIpfs = async (cid: string) => {
+        try {
+            const stream = ipfs.cat(cid)
+            let data = ""
+    
+            for await (const chunk of stream) {
+                data += chunk.toString()
+            }
+    
+            const userData = JSON.parse(data)
+            console.log('Fetched user data from IPFS:', userData)
+        } catch (error) {
+            console.error("Failed to fetch user data from IPFS:", error);
+        }
+    }
+    
+
     const chains = ['eth-mainnet', 'matic-mainnet', 'matic-mumbai']; // Add more networks
 
     useEffect(() => {
@@ -110,6 +154,8 @@ const WalletInfo: NextPage = () => {
                     )
                 )
                 setLoading(false)
+                // Call the new function to store user data to IPFS
+                await storeUserDataToIpfs();
             }
         }
         fetchData()
