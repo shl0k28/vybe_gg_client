@@ -35,63 +35,43 @@ const Home: NextPage = () => {
 	}
 
 	return(
-		<Box h={'100vh'} w={'100vw'} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
-			 <nav className='bg-[#08090c] text-gray-300 px-16 py-8 flex items-center justify-between space-x-8'>
+		<Box h={['100vh', '100vh', '100vh', '100vh']} w={['100vw', '100vw', '100vw', '100vw']} overflowX={'hidden'} overflowY={'scroll'} bgColor={'#08090c'} fontFamily={'Manrope'}>
+			<nav className='bg-[#08090c] text-gray-300 px-16 py-8 flex items-center justify-between space-x-8'>
 				<h1 className='text-3xl' style={{ fontFamily: 'Jura' }}>
-				{header}
+					{header}
 				</h1>
 				<Button
-				sx={{
-					border: '2px',
-					color: '#d27bc0',
-					bg: 'none',
-					_hover: {
-					bg: 'none',
-					},
-				}}
-				onClick={handleLaunchClick}
+					sx={{
+						border: '2px',
+						color: '#d27bc0',
+						bg: 'none',
+						_hover: {
+						bg: 'none',
+						},
+					}}
+					onClick={handleLaunchClick}
 				>
-				launch
+					launch
 				</Button>
 			</nav>
-			<VStack px={16} py={8} spacing={4}>
-				<Text fontFamily={'Jura'} fontSize={'3xl'} color={'gray.100'} fontWeight={'bold'}>
+			<VStack px={[4, 8, 16, 16]} py={8} spacing={4}>
+				<Text fontFamily={'Jura'} fontSize={['xl', '2xl', '3xl', '3xl']} color={'gray.100'} fontWeight={'bold'}>
 					{`Ride the Vybe: Welcome to the Future of Gaming Insights`}
 				</Text>
-				<Text fontSize={'md'} color={'gray.300'}>
+				<Text fontSize={['sm', 'md', 'md', 'md']} color={'gray.300'}>
 					{`Dive into the minds of your gamers with Vybe.gg - your interstellar tool for player understanding in the gaming cosmos.`}
 				</Text>
-				{/* <HStack w={'full'} justify={'center'}>
-					<Input w={'container.sm'} value={address} onChange={({ target }) => setAddress(target.value)}/>
-					<Button as='a' href={`/${address}`} bgColor={'pink.800'} color={'whiteAlpha.700'} _hover={{
-						bgColor: 'pink.600',
-						color: 'whiteAlpha.800'
-					}}>
-						Get KYG
-					</Button>
-				</HStack> */}
 			</VStack>
-			<HStack px={16} justify={'space-evenly'}>
-				<Image src='/gaming_arcade.jpg' h={'sm'} rounded={'lg'}/>
-				<Image src='/gaming_2.jpg' h={'sm'} rounded={'lg'}/>
-				<Image src='/gaming_3.jpg' h={'sm'} rounded={'lg'}/>
-				<Image src='/gaming_4.jpg' h={'sm'} rounded={'lg'}/>
-			</HStack>
-			{/* <HStack align={'center'} justify={'space-between'} px={16} py={8}>
-				{
-					features.map(({ title, subTitle, content }, index) => {
-						return(
-							<VStack key={index}>
-								<Text color={'gray.100'}>{title}</Text>
-								<Text color={'gray.300'}>{subTitle}</Text>
-								<Text color={'gray.500'}>{content}</Text>
-							</VStack>
-						)
-					})
-				}
-			</HStack> */}
+			<Stack direction={['column', 'column', 'row', 'row']} px={[4, 8, 16, 16]} justify={'space-evenly'}>
+				<Image src='/gaming_arcade.jpg' h={['xs', 'sm', 'sm', 'sm']} rounded={'lg'}/>
+				<Image src='/gaming_2.jpg' h={['xs', 'sm', 'sm', 'sm']} rounded={'lg'}/>
+				<Image src='/gaming_3.jpg' h={['xs', 'sm', 'sm', 'sm']} rounded={'lg'}/>
+				<Image src='/gaming_4.jpg' h={['xs', 'sm', 'sm', 'sm']} rounded={'lg'}/>
+			</Stack>
 		</Box>
 	)
+	
+	
 }
 
 export default Home
