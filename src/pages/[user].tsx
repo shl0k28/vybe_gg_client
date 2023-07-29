@@ -518,8 +518,7 @@ const WalletInfo: NextPage = () => {
             overflow={"auto"}
           >
             <Stack>
-              <Heading>Satoshi'
-                    s Scroll</Heading>
+              <Heading>Satoshis Scroll</Heading>
               <Select
                 placeholder="Select chain"
                 color={"#F8F8FF"}
