@@ -5,25 +5,7 @@ import { useState, useEffect, use } from "react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Line, Pie } from "react-chartjs-2";
 import { Chart as ChartJs, registerables } from "chart.js";
-import {
-  Button,
-  Box,
-  HStack,
-  VStack,
-  Stack,
-  Heading,
-  Text,
-  TableContainer,
-  Table,
-  TableCaption,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-  Select,
-  Flex,
-} from "@chakra-ui/react";
+import { Button,Box,HStack,VStack,Stack,Heading,Text,TableContainer,Table,TableCaption,Thead,Tr,Th,Tbody,Td,Select,Flex } from "@chakra-ui/react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -44,7 +26,7 @@ const WalletInfo: NextPage = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  // const address = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
+  const address = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
   // 0x816fe884C2D2137C4F210E6a1d925583fa4A917d
   // local state
   const [portfolioData, setPortfolioData] = useState<
@@ -63,7 +45,8 @@ const WalletInfo: NextPage = () => {
   const [txnFunction, setTxnFunction] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true); // Add loading state
   const [userAddress, setUserAddress] = useState<string>("");
-  const { address }: any = useAccount();
+  const [isMobile, setIsMobile] = useState(false);
+  // const { address }: any = useAccount();
   const { chain }: any = useNetwork();
 
   useEffect(() => {
@@ -107,22 +90,6 @@ const WalletInfo: NextPage = () => {
     setUserTransactions((prevData) => ({ ...prevData, [chainName]: data }));
     return data;
   };
-
-  // const portfolioDataQuery = useQuery({ queryKey: ['history'],
-  //     queryFn: () => getHistoricalPortfolio('matic-mainnet', user as string)
-  // })
-
-  // const nftBalancesQuery = useQuery({ queryKey: ['nftBalances'],
-  //     queryFn: () => getNftBalances('matic-mainnet', user as string)
-  // })
-
-  // const tokenBalanceQuery = useQuery({ queryKey: ['tokenBalances'],
-  //     queryFn: () => getTokenBalances('matic-mainnet', user as string)
-  // })
-
-  // const userTransactionsQuery = useQuery({ queryKey: ['userTransactions'],
-  //     queryFn: () => getUserTransactions('matic-mainnet', user as string)
-  // })
 
   const storeUserDataToIpfs = async () => {
     const userData = {
@@ -249,25 +216,6 @@ const WalletInfo: NextPage = () => {
     fill: true,
   };
 
-  // for displaying line chart for all data across all chains combined
-  //   const data = {
-  //     labels: getLast30Days(),
-  //     datasets: [
-  //       {
-  //         label: 'Total Networth',
-  //         data: Object.values(portfolioData).reduce((combinedData, chainData) => {
-  //           chainData.forEach((value, index) => {
-  //             combinedData[index] = (combinedData[index] || 0) + value;
-  //           });
-  //           return combinedData;
-  //         }, []),
-  //         backgroundColor: 'rgb(135, 206, 235, 1)',
-  //         borderColor: 'rgba(135, 206, 235, 0.2)',
-  //       },
-  //     ],
-  //     fill: true,
-  //   };
-
   const options = {
     scales: {
       y: {
@@ -288,6 +236,16 @@ const WalletInfo: NextPage = () => {
     chartLabels.push(tokenBalances?.actualTokens[i].contract_ticker_symbol);
   }
 
+  useEffect(() => {
+    // This code runs only on the client side
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const chartDataset = {
     labels: combinedTokenBalances.map((token) => token.contract_ticker_symbol),
     datasets: [
@@ -304,6 +262,34 @@ const WalletInfo: NextPage = () => {
       },
     ],
   };
+
+  const top5Indices = combinedPercentages.map((percentage, index) => ({ index, percentage }))
+  .sort((a, b) => b.percentage - a.percentage)
+  .slice(0, 5)
+  .map(entry => entry.index);
+
+// Filtered data for mobile view
+const mobileLabels = top5Indices.map(index => combinedTokenBalances[index].contract_ticker_symbol);
+const mobileData = top5Indices.map(index => combinedPercentages[index]);
+const mobileBackgroundColor = top5Indices.map(index => backgroundColor[index]);
+
+// Conditional dataset based on view
+const displayDataset = isMobile ? {
+  labels: mobileLabels,
+  datasets: [
+    {
+      label: "Token Balances(%)",
+      data: mobileData,
+      backgroundColor: mobileBackgroundColor,
+      borderColor: [
+        "rgba(255, 99, 132, 1)",
+        "rgba(54, 162, 235, 1)",
+        // Add more colors as needed
+      ],
+      borderWidth: 2,
+    },
+  ],
+} : chartDataset;
 
   const getTxnCategory = async (txnHash: any) => {
     const txChain = chain.id == "1" ? "eth-mainnet" : "matic-mainnet";
@@ -384,107 +370,65 @@ const WalletInfo: NextPage = () => {
 
   return (
     <Box
-      h={"100vh"}
-      w={"100vw"}
-      overflowX={"hidden"}
-      overflowY={"scroll"}
-      bgColor={"#08090c"}
-      fontFamily={"Manrope"}
-    >
-      <nav className="bg-[#08090c] text-white px-4 sm:px-16 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 sm:space-x-8">
-        <h1 className="text-3xl sm:text-4xl" style={{ fontFamily: "Jura" }}>
-          {header}
-        </h1>
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 w-full sm:w-auto items-stretch sm:items-center">
-          <ConnectButton />
-          <Button
-            className="w-full sm:w-auto"
-            bgColor={"pink.800"}
-            color={"whiteAlpha.700"}
-            _hover={{
-              bgColor: "pink.600",
-              color: "whiteAlpha.800",
-            }}
-          >
-            get degen score
-          </Button>
-        </div>
-      </nav>
+    h={"100vh"}
+    w={"100vw"}
+    overflowX={"hidden"}
+    overflowY={"scroll"}
+    bgColor={"#08090c"}
+    fontFamily={"Manrope"}
+  >
+    <nav className="bg-[#08090c] text-white px-4 sm:px-16 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 sm:space-x-8">
+      <h1 className="text-3xl sm:text-4xl" style={{ fontFamily: "Jura" }}>
+        {header}
+      </h1>
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 w-full sm:w-auto items-stretch sm:items-center">
+        <ConnectButton />
+        <Button
+          className="w-full sm:w-auto"
+          bgColor={"pink.800"}
+          color={"whiteAlpha.700"}
+          _hover={{
+            bgColor: "pink.600",
+            color: "whiteAlpha.800",
+          }}
+        >
+          get degen score
+        </Button>
+      </div>
+    </nav>
 
       <Stack px={16} fontFamily={"Manrope"}>
         <Text>{userAddress}</Text>
-        <Flex
-          direction={["column", "column", "row"]}
-          alignItems={"center"}
-          justify={"space-between"}
-         
-        >
-          <Box h={["30%", "30%", "35%"]} w={["100%", "100%", "35%"]}>
+        <Flex direction={["column", "column", "row"]} alignItems={"center"} justify={"space-between"} >
+          <Box h={["30%", "30%", "35%"]} w={["100%", "100%", "35%"]} mb={8}>
             <Heading fontFamily={"Jura"} color={"whiteAlpha.900"}>
               Net Worth: ${getTotalNetWorth()}
             </Heading>
-            <Pie data={chartDataset} />
+            <Pie data={displayDataset} />
           </Box>
 
           <Box h={"auto"} w={["100%", "100%", "45%"]}>
-            <Heading
-              fontFamily={"Jura"}
-              color={"whiteAlpha.900"}
-              textAlign={"center"}
-            >
+            <Heading fontFamily={"Jura"} color={"whiteAlpha.900"} textAlign={"center"}>
               Pixel Treasury
             </Heading>
-            <Select
-              placeholder="Select chain"
-              color={"#F8F8FF"}
-              value={selectedChainNFT}
-              onChange={handleChainSelectionNFT}
-            >
+            <Select placeholder="Select chain" color={"#F8F8FF"} value={selectedChainNFT} onChange={handleChainSelectionNFT}>
               <option value="all">All</option>
               {chains.map((chain) => (
-                <option key={chain} value={chain}>
-                  {chain}
-                </option>
+                <option key={chain} value={chain}>{chain}</option>
               ))}
             </Select>
             <Carousel showThumbs={false} dynamicHeight={false}>
-              {(selectedChainNFT === "all"
-                ? Object.keys(nftBalances)
-                : [selectedChainNFT]
-              ).flatMap((chainName) =>
-                nftBalances[chainName]?.data.items.map(
+              {(selectedChainNFT === "all" ? Object.keys(nftBalances) : [selectedChainNFT]
+              ).flatMap((chainName) => nftBalances[chainName]?.data.items.map(
                   (nft: any, index: number) => (
                     <Box key={index} py="10" rounded="md">
-                      <a
-                        href={getOpenseaUrl(
-                          chainName,
-                          nft.contract_address,
-                          nft?.nft_data[0].token_id
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
+                      <a href={getOpenseaUrl( chainName, nft.contract_address, nft?.nft_data[0].token_id)} target="_blank" rel="noopener noreferrer" className="block">
                         <img
-                          src={
-                            nft?.nft_data[0].external_data?.image ||
-                            "https://via.placeholder.com/150"
-                          }
-                          alt={nft?.contract_name || "NFT image"}
-                          className="object-contain h-[20rem] rounded-xl mb-4 "
-                        />
+                          src={ nft?.nft_data[0].external_data?.image || "https://via.placeholder.com/150" } alt={nft?.contract_name || "NFT image"}
+                          className="object-contain h-[20rem] rounded-xl mb-4 "/>
                       </a>
-                      <Text
-                        fontFamily="mono"
-                        fontSize="xl"
-                        mb="1"
-                        color={"#F8F8FF"}
-                      >
-                        {nft.contract_name}
-                      </Text>
-                      <Text fontFamily="mono" fontSize="sm" color={"#F8F8FF"}>
-                        {chainName}
-                      </Text>
+                      <Text fontFamily="mono" fontSize="xl" mb="1" color={"#F8F8FF"}>{nft.contract_name}</Text>
+                      <Text fontFamily="mono" fontSize="sm" color={"#F8F8FF"}>{chainName}</Text>
                     </Box>
                   )
                 )
@@ -493,37 +437,17 @@ const WalletInfo: NextPage = () => {
           </Box>
         </Flex>
 
-        <Flex
-          direction={["column", "column", "row"]}
-          alignItems={"center"}
-          justify={"space-between"}
+        <Flex direction={["column", "column", "row"]} alignItems={"center"} justify={"space-between"}
         >
-          <Box
-            h={["50vh", "50vh", "50vh"]}
-            w={["100%", "100%", "100%"]}
-            overflow={"auto"}
-          >
-            <Line
-              data={data}
-              options={{
-                ...options,
-                responsive: true,
-                maintainAspectRatio: false,
-              }}
+          <Box h={["50vh", "50vh", "50vh"]} w={["100%", "100%", "100%"]} overflow={"auto"}>
+            <Line data={data} options={{ ...options,responsive: true,maintainAspectRatio: false, }}
             />
           </Box>
-          <Box
-            h={["45%", "45%", "45%"]}
-            w={["100%", "100%", "85%"]}
-            overflow={"auto"}
+          <Box h={["45%", "45%", "45%"]} w={["100%", "100%", "85%"]} overflow={"auto"} mt={8}
           >
             <Stack>
               <Heading>Satoshis Scroll</Heading>
-              <Select
-                placeholder="Select chain"
-                color={"#F8F8FF"}
-                value={selectedChain}
-                onChange={handleChainSelection}
+              <Select placeholder="Select chain" color={"#F8F8FF"} value={selectedChain} onChange={handleChainSelection}
               >
                 <option value="all">All</option>
                 {chains.map((chain) => (
@@ -532,18 +456,13 @@ const WalletInfo: NextPage = () => {
                   </option>
                 ))}
               </Select>
-              <TableContainer
-                width={["90vw", "80vw", "50vw"]}
-                style={{ maxHeight: "60vh", overflowY: "auto" }}
+              <TableContainer width={["90vw", "80vw", "50vw"]} style={{ maxHeight: "60vh", overflowY: "auto" }}
               >
                 <Table variant={"simple"} border={"#21FC0D"} color={"#F8F8FF"}>
                   <TableCaption>Transaction History</TableCaption>
                   <Thead>
                     <Tr
-                      style={{
-                        position: "sticky",
-                        top: "0",
-                        background: "#F8F8FF",
+                      style={{ position: "sticky", top: "0", background: "#F8F8FF",
                       }}
                     >
                       <Th>From</Th>
@@ -561,18 +480,9 @@ const WalletInfo: NextPage = () => {
                       userTransactions[chainName]?.data.items.map(
                         (tx: any, index: number) => (
                           <Tr key={index}>
-                            <Td>
-                              {tx.from_address?.slice(0, 5)}...
-                              {tx.from_address?.slice(-5)}
-                            </Td>
-                            <Td>
-                              {tx.to_address?.slice(0, 5)}...
-                              {tx.to_address?.slice(-5)}
-                            </Td>
-                            <Td>
-                              {tx.tx_hash?.slice(0, 5)}...
-                              {tx.tx_hash?.slice(-5)}
-                            </Td>
+                            <Td>{tx.from_address?.slice(0, 5)}...{tx.from_address?.slice(-5)}</Td>
+                            <Td>{tx.to_address?.slice(0, 5)}...{tx.to_address?.slice(-5)}</Td>
+                            <Td>{tx.tx_hash?.slice(0, 5)}...{tx.tx_hash?.slice(-5)}</Td>
                             {!tx.log_events?.[0]?.decoded?.name ? (
                               loading ? (
                                 <Text>Loading...</Text>
