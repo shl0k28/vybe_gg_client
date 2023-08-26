@@ -26,7 +26,7 @@ const WalletInfo: NextPage = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const address = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
+//   const address = `0x7eb413211a9de1cd2fe8b8bb6055636c43f7d206`
   // 0x816fe884C2D2137C4F210E6a1d925583fa4A917d
   // local state
   const [portfolioData, setPortfolioData] = useState<
@@ -46,7 +46,7 @@ const WalletInfo: NextPage = () => {
   const [loading, setLoading] = useState(true); // Add loading state
   const [userAddress, setUserAddress] = useState<string>("");
   const [isMobile, setIsMobile] = useState(false);
-  // const { address }: any = useAccount();
+  const { address }: any = useAccount();
   const { chain }: any = useNetwork();
 
   useEffect(() => {
@@ -189,24 +189,24 @@ const WalletInfo: NextPage = () => {
     // Add more colors as needed
   ];
 
-  function getLast12Months() {
-    const dates = Array.from({ length: 12 }, (_, i) => {
+  function getLast4QuarterMonths() {
+    const dates = Array.from({ length: 4 }, (_, i) => {
       const d = new Date();
-      d.setMonth(d.getMonth() - i);
+      d.setMonth(d.getMonth() - (i * 3));
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     });
     return dates.reverse();
-  }
+}
 
-  const chainColors: any = {
+const chainColors: any = {
     "eth-mainnet": "rgba(255, 99, 132, 0.2)",
     "matic-mainnet": "rgba(54, 162, 235, 0.2)",
     "matic-mumbai": "rgba(255, 206, 86, 0.2)",
     // Add more chains and colors as needed
-  };
+};
 
-  const data = {
-    labels: getLast12Months(),
+const data = {
+    labels: getLast4QuarterMonths(),
     datasets: Object.keys(portfolioData).map((chainName, index) => ({
       label: `Total Networth (${chainName})`,
       data: portfolioData[chainName],
@@ -214,7 +214,7 @@ const WalletInfo: NextPage = () => {
       borderColor: chainColors[index % backgroundColor.length],
     })),
     fill: true,
-  };
+};
 
   const options = {
     scales: {
@@ -440,9 +440,9 @@ const displayDataset = isMobile ? {
         <Flex direction={["column", "column", "row"]} alignItems={"center"} justify={"space-between"}
         >
           <Box h={["50vh", "50vh", "50vh"]} w={["100%", "100%", "100%"]} overflow={"auto"}>
-            <Line data={data} options={{ ...options,responsive: true,maintainAspectRatio: false, }}
-            />
-          </Box>
+        <Line data={data} options={{ ...options,responsive: true,maintainAspectRatio: false, }}
+        />
+    </Box>
           <Box h={["45%", "45%", "45%"]} w={["100%", "100%", "85%"]} overflow={"auto"} mt={8}
           >
             <Stack>
