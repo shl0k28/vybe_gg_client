@@ -57,7 +57,7 @@ const WalletInfo: NextPage = () => {
 
   // get portfolio data
   const getHistoricalPortfolio = async (chainName: string, address: string) => {
-    let url = `http://localhost:8080/api/fetch/portfolio?chainName=${chainName}&address=${address}`;
+    let url = `https://vybe-server-2.onrender.com/api/fetch/portfolio?chainName=${chainName}&address=${address}`;
     const res = await fetch(url, { method: "GET" });
     const data = await res.json();
     setPortfolioData((prevData) => ({ ...prevData, [chainName]: data }));
@@ -66,7 +66,7 @@ const WalletInfo: NextPage = () => {
 
   // get nft balances
   const getNftBalances = async (chainName: string, address: string) => {
-    let url = `http://localhost:8080/api/fetch/nftBalance?chainName=${chainName}&address=${address}`;
+    let url = `https://vybe-server-2.onrender.com/api/fetch/nftBalance?chainName=${chainName}&address=${address}`;
     const res = await fetch(url, { method: "GET" });
     const data = await res.json();
     setNftBalances((prevData) => ({ ...prevData, [chainName]: data }));
@@ -75,7 +75,7 @@ const WalletInfo: NextPage = () => {
 
   // get token balances
   const getTokenBalances = async (chainName: string, address: string) => {
-    let url = `http://localhost:8080/api/fetch/tokenBalance?chainName=${chainName}&address=${address}`;
+    let url = `https://vybe-server-2.onrender.com/api/fetch/tokenBalance?chainName=${chainName}&address=${address}`;
     const res = await fetch(url, { method: "GET" });
     const data = await res.json();
     setTokenBalances((prevData) => ({ ...prevData, [chainName]: data }));
@@ -84,7 +84,7 @@ const WalletInfo: NextPage = () => {
 
   // get user transaction history
   const getUserTransactions = async (chainName: string, address: string) => {
-    let url = `http://localhost:8080/api/fetch/transactions?chainName=${chainName}&address=${address}`;
+    let url = `https://vybe-server-2.onrender.com/api/fetch/transactions?chainName=${chainName}&address=${address}`;
     const res = await fetch(url, { method: "GET" });
     const data = await res.json();
     setUserTransactions((prevData) => ({ ...prevData, [chainName]: data }));
