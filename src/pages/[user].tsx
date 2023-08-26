@@ -258,7 +258,7 @@ const data = {
           "rgba(54, 162, 235, 1)",
           // Add more colors as needed
         ],
-        borderWidth: 2,
+        borderWidth: 3,
       },
     ],
   };
